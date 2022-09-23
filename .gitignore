@@ -15,5 +15,5 @@ template/USER/.vscode/uv4.log.lock
 template/USER/.vscode/uv4.log
 *.dep
 .vscode/
-OBJ\
+OBJ/
 
