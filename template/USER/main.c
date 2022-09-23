@@ -18,7 +18,7 @@
 #include "mytask.h"
 #include "list_c.h"
 
-#define datascope 1
+#define datascope 0
 #define back_S 15          // 15s
 #define Next_Wait_Time 10 //下一任务等待时间 for Next_timer_handler
 #define table_del_ani 1
