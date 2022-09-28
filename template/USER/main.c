@@ -19,7 +19,7 @@
 #include "list_c.h"
 
 #define datascope 0
-#define back_S 15          // 15s
+#define back_S 15         // 15s
 #define Next_Wait_Time 10 //下一任务等待时间 for Next_timer_handler
 #define table_del_ani 1
 
@@ -54,7 +54,7 @@ void time_reflash()
     int time = my_lv_time / 1000;
 #if table_del_ani
     // if (my_lv_time % 200 == 0)
-        table_arrange_auto();
+    table_arrange_auto();
 #endif
     // if (State.flag)
     lv_label_set_text_fmt(update_label, "%.2d:%.2d:%.2d Ang:%d.%.1d Ang_zero %d.%.1d", time / 3600 % 24, time / 60 % 60, time % 60, (int)State.inc_ang, f_int_tran(State.inc_ang, 10), (int)State.std_ang, f_int_tran(State.std_ang, 10));
@@ -144,7 +144,7 @@ void Start_timer_handler(void)
         else
             State.inc_Rec = 0;
         INC_timer = lv_timer_create(INC_timer_handler, 5, NULL);
-        cam_timer_on_off(1000, 0);
+
         // printf("\r\n cam_timer %d %d", cam_timer->paused, cam_timer->repeat_count);
         printf("\r\n Start End");
         start_btn_flash();
@@ -194,6 +194,7 @@ void INC_timer_handler(void)
             State.time_start = my_lv_time;
             Motor_timer = lv_timer_create(Motor_timer_handler, 5, NULL);
             start_btn_flash();
+            cam_timer_on_off(1000, 0);                                                      //电机启动后再 启动相机
             printf("\r\n inc->motor %d %d %d", State.flag, State.inc_Rec, State.motor_run);
             lv_timer_del(INC_timer);
         }
@@ -458,7 +459,7 @@ void back_timer_handler(void)
         Slave_Motor_Vel_Mode(-30, 0);
     else
         Slave_Motor_Vel_Mode(30, 0);
-    LED0=Ir_IO;
+    LED0 = Ir_IO;
     if (Ir_IO == 0 || my_lv_time > back_S * 1000 && arr == 0) //当到达光电开关时
     {
         TIM1->CNT = motor_Middele; //归中定时器
