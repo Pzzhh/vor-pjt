@@ -130,6 +130,7 @@ void Dropdown_read_option(lv_obj_t *dropdown, float choose)
 
 void task_change_sever(link *temp)
 {
+    short vel=temp->Vel;
     switch (temp->mode)
     {
     case VOR_ID:
@@ -146,9 +147,15 @@ void task_change_sever(link *temp)
         break;
     }
     Dropdown_read_option(dropdown_F_V, temp->Frep_VOR);
-    Dropdown_read_option(dropdown_V, temp->Vel);
+    if (temp->Vel < 0)
+        vel = -temp->Vel;
+    Dropdown_read_option(dropdown_V, vel);
     Set_time = temp->Set_Time;
     lv_spinbox_set_value(time_box, Set_time);
+    if (temp->Vel >= 0)
+        State.dir = 1;
+    else
+        State.dir = 0;
 }
 
 void Table_touch_handle(lv_event_t *e)
@@ -203,6 +210,8 @@ void table_set(int flag, int Num_choose)
         printf("\r\n frep %f", e->Frep_VOR);
         e->mode = Dropdown_mode;
         e->Vel = Dropdown_read(dropdown_V);
+        if (State.dir == 0 && e->mode == Ctn_ID)
+            e->Vel = -e->Vel;
         e->Set_Time = Set_time;
         table = e->Table;
         LV_LOG_USER("\r\n %d", Dropdown_mode);
@@ -223,7 +232,7 @@ void table_set(int flag, int Num_choose)
             link_Del(Task_strat, Table_Choose);
         }
 
-            Table_Choose = 1;
+        Table_Choose = 1;
         // table_arrange();
         return;
     }
@@ -238,6 +247,8 @@ void table_set(int flag, int Num_choose)
         e->Frep_VOR = Dropdown_read_float(dropdown_F_V);
         e->mode = Dropdown_mode;
         e->Vel = Dropdown_read(dropdown_V);
+        if (State.dir == 0 && e->mode == Ctn_ID)
+            e->Vel = -e->Vel;
         e->Set_Time = Set_time;
         // Task_lisk(Table_Choose)->Frep_VOR = State.Frep_VOR;
         // Task_lisk(Table_Choose)->mode = Dropdown_mode;
@@ -314,16 +325,16 @@ void table_arrange_auto()
             if (i >= 1)
             {
                 miu = 60 * (i - 1) - Task_lisk(i)->pos;
-                if (Task_lisk(i)->pos < 60 * (i - 1)-2 || Task_lisk(i)->pos > 60 * (i - 1)+2)
+                if (Task_lisk(i)->pos < 60 * (i - 1) - 2 || Task_lisk(i)->pos > 60 * (i - 1) + 2)
                 {
                     if (miu > 10 || miu < -10)
-                        miu = miu *0.2;
+                        miu = miu * 0.2;
                     else if (miu < 0)
                         miu = -2;
                     else
                         miu = 2;
                     Task_lisk(i)->pos = Task_lisk(i)->pos + miu;
-                    
+
                     // Task_lisk(i)->pos/=;
                     lv_obj_align(Task_lisk(i)->Table, LV_ALIGN_DEFAULT, 0, Task_lisk(i)->pos);
                 }
@@ -362,7 +373,7 @@ void Table_btn_handler(lv_event_t *e)
 {
     int temp = (int)e->user_data;
     lv_event_code_t code = lv_event_get_code(e);
-    if (code == LV_EVENT_CLICKED&&State.flag==0)            //启动后链表按键不可动
+    if (code == LV_EVENT_CLICKED && State.flag == 0) //启动后链表按键不可动
     {
         switch (temp)
         {

@@ -4,8 +4,8 @@
 #include "../lvgl/lvgl.h"
 void Menu_init(void);
 
-
-struct data1 {
+struct data1
+{
     //按键状态
     uint8_t flag;
     //频率和倾角（公用）
@@ -32,6 +32,8 @@ struct data1 {
     float std_ang;
     //实际角度
     float act_ang;
+    //方向设置
+    short dir;
 };
 
 void Model_init(void);
@@ -42,17 +44,18 @@ void start_btn_flash(void);
 void start_btn_change(short id, int Num);
 void M4_init(void);
 void wait_slave_ready_ui(void);
-int f_int_tran(float k,short num);
+int f_int_tran(float k, short num);
 #define VOR_ID 1
 #define Ctn_ID 2
 #define OVAR_ID 3
 #define VHIT_ID 4
 
-enum btn_id{
+enum btn_id
+{
     stop = 1,
     wait_inc,
     wait_back,
-    start=4,
+    start = 4,
     next,
 
 };

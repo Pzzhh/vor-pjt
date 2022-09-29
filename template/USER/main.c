@@ -35,6 +35,7 @@ struct data1 State = {
     .Vel = 1,
     .Frep_VOR = 10,
     .Set_Time = 1,
+    .dir = 1,
 };
 lv_obj_t *update_label;
 // extern link *Task_strat;
@@ -57,7 +58,7 @@ void time_reflash()
     table_arrange_auto();
 #endif
     // if (State.flag)
-    lv_label_set_text_fmt(update_label, "%.2d:%.2d:%.2d Ang:%d.%.1d Ang_zero %d.%.1d", time / 3600 % 24, time / 60 % 60, time % 60, (int)State.inc_ang, f_int_tran(State.inc_ang, 10), (int)State.std_ang, f_int_tran(State.std_ang, 10));
+    lv_label_set_text_fmt(update_label, "%.2d:%.2d:%.2d Ang:%d.%.1d Ang_zero %d.%.1d  ", time / 3600 % 24, time / 60 % 60, time % 60, (int)State.inc_ang, f_int_tran(State.inc_ang, 10), (int)State.std_ang, f_int_tran(State.std_ang, 10));
     // lv_label_set_text_fmt(update_label, "t:%d   M:%d V:%d F:%d Mr:%d Flag:%d A:%d r:c%d ", my_lv_time - State.time_start, State.mode, State.Vel, (int)(State.Frep_VOR * 10), State.motor_run, State.flag, (int)(State.inc_ang * 10), Dropdown_mode);
     // else
     //     lv_label_set_text_fmt(update_label, a[i++]);

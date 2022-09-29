@@ -15,6 +15,13 @@ void start_init(void);
 extern lv_timer_t *INC_timer;
 extern void cam_timer_on_off(int Period);
 
+/*****************************************************/
+#define LV_SYMBOL_rotate_right "\xEF\x80\x9E"
+/*Add a border with bg_color*/
+#define LV_SYMBOL_rotate_left "\xEF\x83\xA2"
+LV_FONT_DECLARE(arrow_rotate_right);
+/*****************************************************/
+
 void Btn_Num_sever(lv_event_t *e)
 {
 
@@ -167,6 +174,24 @@ void INC_manual_event(lv_event_t *e)
     }
 }
 
+void rotate_dir_buttum_handler(lv_event_t *e)
+{
+    lv_event_code_t code = lv_event_get_code(e);
+    lv_obj_t *obj = (void *)e->user_data;
+    static int time;
+    if (code == LV_EVENT_CLICKED)
+    {
+        State.dir = !State.dir;
+    }
+    if (1)
+    {
+        if (State.dir)
+            lv_label_set_text(obj, LV_SYMBOL_rotate_right);
+        else
+            lv_label_set_text(obj, LV_SYMBOL_rotate_left);
+    }
+}
+
 void reset_btn_handler(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -202,6 +227,7 @@ lv_obj_t *label_F;
 lv_obj_t *label_V;
 lv_obj_t *dropdown_F_V;
 lv_obj_t *dropdown_V;
+lv_obj_t *rotate_dir_buttum;
 
 void Model_init(void)
 {
@@ -225,10 +251,23 @@ void Model_init(void)
     lv_dropdown_set_options(dropdown_V, "5/s\n"
                                         "10/s\n"
                                         "20/s\n"
+                                        "30/s\n"
                                         "40/s\n"
+                                        "50/s\n"
                                         "60/s\n"
                                         "80/s");
 
+    rotate_dir_buttum = lv_btn_create(lv_scr_act());
+    lv_obj_set_size(rotate_dir_buttum,40,40);
+    static lv_style_t font_style1;
+    lv_obj_t *btn_symbol = lv_label_create(rotate_dir_buttum);
+    lv_style_init(&font_style1);
+    lv_style_set_text_font(&font_style1, &arrow_rotate_right);
+    lv_label_set_text(btn_symbol, LV_SYMBOL_rotate_right);
+    lv_obj_add_style(btn_symbol, &font_style1, 0);
+    lv_obj_align(btn_symbol,LV_ALIGN_CENTER,0,0);
+    lv_obj_align_to(rotate_dir_buttum, dropdown_V, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
+    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);                             //Òþ²Ø
     /*end*/
 
     /**< Ê±¼ä */ time_box = lv_spinbox_create(lv_scr_act());
@@ -277,6 +316,7 @@ void Model_init(void)
     // btn event
     lv_obj_add_event_cb(btn_up, INC_manual_event, LV_EVENT_ALL, (void *)1);
     lv_obj_add_event_cb(btn_down, INC_manual_event, LV_EVENT_ALL, (void *)0);
+    lv_obj_add_event_cb(rotate_dir_buttum, rotate_dir_buttum_handler, LV_EVENT_ALL, (void *)btn_symbol);
     /*end*/
     // reset btn         ¸´Î»°´¼ü
     // lv_obj_t *reset_btn_label = lv_label_create(lv_scr_act());
@@ -309,6 +349,7 @@ void VOR_init()
     lv_obj_clear_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);     //Òþ²Ø
     lv_label_set_text_fmt(label_F, "Frep:");
     lv_dropdown_set_options(dropdown_F_V, "0.1HZ\n"
                                           "0.2HZ\n"
@@ -330,6 +371,7 @@ void Continue_init()
     lv_obj_add_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);   //Õ¹ÏÖ
 }
 
 void Ovar_init()
@@ -338,6 +380,7 @@ void Ovar_init()
     lv_obj_clear_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);     //Òþ²Ø
     lv_label_set_text_fmt(label_F, "Ovar:");
     lv_dropdown_set_options(dropdown_F_V, "17\n"
                                           "30\n"
@@ -350,6 +393,7 @@ void M4_init(void)
     lv_obj_add_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);     //Òþ²Ø
 }
 
 short Dropdown_read(lv_obj_t *dropdown)
@@ -357,7 +401,7 @@ short Dropdown_read(lv_obj_t *dropdown)
     char buf[20];
     int i;
     short num = 0;
-    memset(buf,0,20);
+    memset(buf, 0, 20);
     lv_dropdown_get_selected_str(dropdown, buf, 20);
     for (i = 0; i < 3; i++)
     {
@@ -521,7 +565,7 @@ float Dropdown_read_float(lv_obj_t *dropdown)
     float num = 0, f = 1;
     int i = 1;
     short flag = 0;
-    memset(buf,0,10);
+    memset(buf, 0, 10);
     lv_dropdown_get_selected_str(dropdown, buf, 10);
     for (i = 0; i < 5; i++)
     {
@@ -535,7 +579,7 @@ float Dropdown_read_float(lv_obj_t *dropdown)
             num = num + (buf[i] - 48) * f;
         }
     }
-    printf("/r/n drop %f :%s", num,buf);
+    printf("/r/n drop %f :%s", num, buf);
     return num;
 }
 
