@@ -17,7 +17,6 @@ link *Task_lisk(int num);
 void Table_touch_handle(lv_event_t *e);
 // extern short Set_time;
 extern lv_obj_t *dropdown_1;
-
 short MyListNum; //目前数
 struct
 {
@@ -210,7 +209,7 @@ void table_set(int flag, int Num_choose)
         printf("\r\n frep %f", e->Frep_VOR);
         e->mode = Dropdown_mode;
         e->Vel = Dropdown_read(dropdown_V);
-        if (State.dir == 0 && e->mode == Ctn_ID)
+        if (State.dir == 0 && (e->mode == Ctn_ID||e->mode==OVAR_ID))              //方向反转
             e->Vel = -e->Vel;
         e->Set_Time = Set_time;
         table = e->Table;
@@ -247,7 +246,7 @@ void table_set(int flag, int Num_choose)
         e->Frep_VOR = Dropdown_read_float(dropdown_F_V);
         e->mode = Dropdown_mode;
         e->Vel = Dropdown_read(dropdown_V);
-        if (State.dir == 0 && e->mode == Ctn_ID)
+        if (State.dir == 0 && (e->mode == Ctn_ID||e->mode==OVAR_ID))         //方向反转
             e->Vel = -e->Vel;
         e->Set_Time = Set_time;
         // Task_lisk(Table_Choose)->Frep_VOR = State.Frep_VOR;
