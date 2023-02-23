@@ -19,8 +19,8 @@
 #include "list_c.h"
 
 #define datascope 0
-#define back_S 15         // 15s
-#define Next_Wait_Time 10 //下一任务等待时间 for Next_timer_handler
+#define back_S 5          // 15s
+#define Next_Wait_Time 10 // 下一任务等待时间 for Next_timer_handler
 #define table_del_ani 1
 
 extern lv_obj_t *table_box;
@@ -39,7 +39,7 @@ struct data1 State = {
 };
 lv_obj_t *update_label;
 // extern link *Task_strat;
-//测试用
+// 测试用
 void time_reflash()
 {
     // const char *a[3] = {"-", "--", "---"};
@@ -78,7 +78,7 @@ struct
     short vail;
 } cam_timer;
 
-void INC_timer_handler(void);
+void INC_timer_handler(lv_timer_t *e);
 void Motor_timer_handler(void);
 void Start_timer_handler(void);
 void usart_data_send(int i);
@@ -112,12 +112,17 @@ void cam_timer_on_off(int Period, int flag)
     else
     {
         cam_timer.vail = 1;
-        cam_timer.e = lv_timer_create(camer_handler, Period, (void *)flag); //时间启动
-        cam_timer.e->repeat_count = 2;                                      //设置重复
-        lv_timer_ready(cam_timer.e);                                        //就绪
+        cam_timer.e = lv_timer_create(camer_handler, Period, (void *)flag); // 时间启动
+        cam_timer.e->repeat_count = 2;                                      // 设置重复
+        // cam_timer.e->last_run=my_lv_time+10*1000;
+        lv_timer_ready(cam_timer.e); // 就绪
         // printf("\r\n New on");
     }
 }
+// void cam_timer_pre_set(int delay,int flag)
+// {
+//      cam_timer_on_off(delay,flag);
+// }
 void fun(void)
 {
     volatile int *SCB_CCR = (volatile int *)0XE000ED14;
@@ -138,55 +143,70 @@ void Start_timer_handler(void)
         State.Frep_VOR = Task_lisk(State.task)->Frep_VOR;
         State.Set_Time = Task_lisk(State.task)->Set_Time;
         printf("\r\n %d %d %d %d", Task_lisk(0)->mode, Task_lisk(1)->mode, Task_lisk(2)->mode, Task_lisk(3)->mode);
-        if (State.mode == OVAR_ID)
+         if (State.mode == OVAR_ID)
         {
             State.inc_Rec = 1;
         }
         else
             State.inc_Rec = 0;
-        INC_timer = lv_timer_create(INC_timer_handler, 5, NULL);
+        cam_timer_on_off(1000, 0); // 电机启动后再 启动相机
+        INC_timer = lv_timer_create(INC_timer_handler, 3000, NULL);
 
         // printf("\r\n cam_timer %d %d", cam_timer->paused, cam_timer->repeat_count);
         printf("\r\n Start End");
         start_btn_flash();
-        lv_timer_del(Start_timer);
+        // lv_timer_del(Start_timer);
         // fun();
     }
+    lv_timer_del(Start_timer);
 }
 
 void NEXT_timer_handler(void)
 {
     int time = (int)my_lv_time - State.time_start;
     time = time / 1000;
-    if (Task_lisk(State.task)->next->state)
+    // printf("...");
+    start_btn_change(next, 10 - time);
+    if (State.flag == 0)
     {
-        // printf("...");
-        start_btn_change(next, 10 - time);
-        if (my_lv_time - State.time_start > Next_Wait_Time * 1000)
+        cam_timer_on_off(1000, 0);
+        lv_timer_del(NEXT_timer);
+        // start_btn_flash();
+        return;
+    }
+    if (my_lv_time - State.time_start > Next_Wait_Time * 1000)
+    {
+        if (Task_lisk(State.task)->next->state)
         {
             State.task++;
             State.flag = 1;
-            Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
+            Start_timer = lv_timer_create(Start_timer_handler, 3000, 0);
+            cam_timer_on_off(1000, 0);
             printf("\r\n next");
             lv_timer_del(NEXT_timer);
+            return;
         }
-        if (State.flag == 0)
+        else
         {
-            start_btn_flash(); //退出等待并刷新按键
+            printf("\r\n next_end");
+            cam_timer_on_off(1000, 0);
+            start_btn_flash();
+            State.flag = 0;
             lv_timer_del(NEXT_timer);
+            return;
         }
     }
-    else
-    {
-        printf("\r\n next_end");
-        start_btn_flash();
-        State.flag = 0;
-        lv_timer_del(NEXT_timer);
-    }
+
+    // if (State.flag == 0)
+    // {
+    //     start_btn_flash(); // 退出等待并刷新按键
+    //     lv_timer_del(NEXT_timer);
+    // }
 }
 
-void INC_timer_handler(void)
+void INC_timer_handler(lv_timer_t *e)
 {
+    e->period = 5;
     if (State.inc_Rec == 0)
     {
         if (State.motor_run == 0 && State.flag == 1)
@@ -195,7 +215,7 @@ void INC_timer_handler(void)
             State.time_start = my_lv_time;
             Motor_timer = lv_timer_create(Motor_timer_handler, 5, NULL);
             start_btn_flash();
-            cam_timer_on_off(1000, 0);                                                      //电机启动后再 启动相机
+
             printf("\r\n inc->motor %d %d %d", State.flag, State.inc_Rec, State.motor_run);
             lv_timer_del(INC_timer);
         }
@@ -221,7 +241,7 @@ void Emg_stop_handler(void)
         lv_timer_del(Emg_stop);
 }
 
-//提供结束服务
+// 提供结束服务
 void Motor_timer_handler(void)
 {
     int limit_time;
@@ -231,7 +251,7 @@ void Motor_timer_handler(void)
     {
         start_btn_flash();
     }
-    switch (State.mode) //时间计算
+    switch (State.mode) // 时间计算
     {                   //(float)State.Set_Time / State.Frep_VOR * 1000 - 50;
     case VOR_ID:
         limit_time = (float)State.Set_Time / State.Frep_VOR * 1000 - 50;
@@ -243,12 +263,12 @@ void Motor_timer_handler(void)
         limit_time = State.Set_Time * 1000;
         break;
     }
-    if (time > limit_time && State.flag) //超时暂停
+    if (time > limit_time && State.flag) // 超时暂停
     {
         State.flag = 0;
-        cam_timer_on_off(1000, 0); //当时间到时停止拍摄    可避免归零还在拍摄的问题（匀速转动的模式）
+        // cam_timer_on_off(1000, 0); //当时间到时停止拍摄    可避免归零还在拍摄的问题（匀速转动的模式）
     }
-    if (State.flag == 0 && time < limit_time) //手动停止
+    if (State.flag == 0 && time < limit_time) // 手动停止
     {
         if (State.mode == OVAR_ID)
             State.inc_Rec = 1, State.Frep_VOR = 0;
@@ -263,9 +283,9 @@ void Motor_timer_handler(void)
     // if(State.flag==0)
     // cam_timer_on_off(1000, 0);                                                  //当时间到时停止拍摄    可避免归零还在拍摄的问题（匀速转动的模式）
 
-    if (State.motor_run == 0) //电机完成
+    if (State.motor_run == 0) // 电机完成
     {
-        if ((State.mode == OVAR_ID && Task_lisk(State.task)->next->mode != OVAR_ID) || (State.mode == OVAR_ID && Task_lisk(State.task)->next->state == 0)) //如下一为ovar则不下降   除下一项为 不存在
+        if ((State.mode == OVAR_ID && Task_lisk(State.task)->next->mode != OVAR_ID) || (State.mode == OVAR_ID && Task_lisk(State.task)->next->state == 0)) // 如下一为ovar则不下降   除下一项为 不存在
             State.inc_Rec = 1, State.Frep_VOR = 0.0;
         else
             State.inc_Rec = 0, State.inc_ang = 0;
@@ -277,26 +297,26 @@ void Motor_timer_handler(void)
 
 void Sys_init(void)
 {
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); //设置系统中断优先级分组2
-    delay_init(168);                                //初始化延时函数
-    uart_init(256000);                              //初始化串口波特率为115200
-    LED_Init();                                     //初始化LED
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); // 设置系统中断优先级分组2
+    delay_init(168);                                // 初始化延时函数
+    uart_init(256000);                              // 初始化串口波特率为115200
+    LED_Init();                                     // 初始化LED
     LCD_Init();                                     // LCD初始化
-    KEY_Init();                                     //按键初始化
+    KEY_Init();                                     // 按键初始化
     INC_IO_init();
     ir_sensor_init();
     Cam_LED_Init();
     // IIC_Init(GPIO_Pin_6 | GPIO_Pin_7, GPIOC);
 
-    TIM3_Int_Init(1999, 83); //定时器初始化(1ms中断),用于给lvgl提供1ms的心跳节拍
+    TIM3_Int_Init(1999, 83); // 定时器初始化(1ms中断),用于给lvgl提供1ms的心跳节拍
 
-    FSMC_SRAM_Init(); //初始化外部sram
-                      //  tp_dev.init();			//触摸屏初始化
-                      // LCD_Init();
+    FSMC_SRAM_Init(); // 初始化外部sram
+                      //   tp_dev.init();			//触摸屏初始化
+                      //  LCD_Init();
     FT5206_Init();
-    tp_dev.scan = FT5206_Scan;             //扫描函数指向GT9147触摸屏扫描
-    tp_dev.touchtype |= 0X80;              //电容屏
-    tp_dev.touchtype |= lcddev.dir & 0X01; //横屏还是竖屏
+    tp_dev.scan = FT5206_Scan;             // 扫描函数指向GT9147触摸屏扫描
+    tp_dev.touchtype |= 0X80;              // 电容屏
+    tp_dev.touchtype |= lcddev.dir & 0X01; // 横屏还是竖屏
     LCD_Display_Dir(1);
 
     lv_init();            // lvgl系统初始化
@@ -311,7 +331,7 @@ void Sys_init(void)
     Slave_DIR_Init();
     uart3_init(9600);
     TIM4_Motor_Int_Init(999, 83);
-    PCout(6) = 0; //相机led归零
+    PCout(6) = 0; // 相机led归零
 }
 
 void task_display(void)
@@ -336,7 +356,7 @@ struct
     u16 Time;
     u8 M_Vel;
     u16 M_F;
-} U_D; //串口协议
+} U_D; // 串口协议
 
 void usart_data_read(void)
 {
@@ -352,10 +372,10 @@ void usart_data_read(void)
     U_D.M_Vel = USART_RX_BUF[6];
     Res = USART_RX_BUF[7];
     U_D.M_F = Res * 256 + USART_RX_BUF[8];
-    Uart_len = 2; //标志位清楚
+    Uart_len = 2; // 标志位清楚
     if (U_D.Cmd == 1 && Task_lisk(1)->state == 1)
     {
-        State.task = 0; //用于作为启示指示
+        State.task = 0; // 用于作为启示指示
         State.flag = 1;
         Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
     }
@@ -366,10 +386,10 @@ void usart_data_read(void)
 
     if (U_D.Cmd / 10 == 3)
     {
-        //读取
+        // 读取
         i = U_D.Cmd % 10;
         Motor_f = U_D.M_F;
-        if (i >= 0 && i <= 8) //输入限制
+        if (i >= 0 && i <= 8) // 输入限制
         {
             Task_lisk(i)->mode = U_D.Mode;
             Task_lisk(i)->Set_Time = U_D.Time;
@@ -451,9 +471,9 @@ void back_timer_handler(void)
 {
     static short arr = 0;
     inc_down = 1;
-    if (my_lv_time < 3000) //开机启动过快会与制动拖住
+    if (my_lv_time < 3000) // 开机启动过快会与制动拖住
     {
-        TIM5->CR1 &= ~TIM_CR1_CEN; //关闭定时器
+        TIM5->CR1 &= ~TIM_CR1_CEN; // 关闭定时器
         return;
     }
     if (arr == 0)
@@ -461,17 +481,17 @@ void back_timer_handler(void)
     else
         Slave_Motor_Vel_Mode(30, 0);
     LED0 = Ir_IO;
-    if (Ir_IO == 0 || my_lv_time > back_S * 1000 && arr == 0) //当到达光电开关时
+    if (Ir_IO == 0 || my_lv_time > back_S * 1000 && arr == 0) // 当到达光电开关时
     {
-        TIM1->CNT = motor_Middele; //归中定时器
+        TIM1->CNT = motor_Middele; // 归中定时器
         arr = 1;
     }
-    if (arr && (TIM1->CNT > motor_Middele + 3500)) //三十度
+    if (arr && (TIM1->CNT > motor_Middele + 3500)) // 三十度
     {
         Slave_Motor_Vel_Mode(0, 0);
-        TIM1->CNT = motor_Middele; //归中定时器
-        TIM5->CR1 &= ~TIM_CR1_CEN; //关闭定时器
-        inc_down = 0;              //倾斜关闭
+        TIM1->CNT = motor_Middele; // 归中定时器
+        TIM5->CR1 &= ~TIM_CR1_CEN; // 关闭定时器
+        inc_down = 0;              // 倾斜关闭
         lv_obj_clean(lv_scr_act());
         Menu_init();
         State.std_ang = State.inc_ang;
@@ -515,22 +535,22 @@ int main(void)
     }
 }
 
-unsigned char Send_Count; //串口需要发送的数据个数
+unsigned char Send_Count; // 串口需要发送的数据个数
 // short Acc_Data[4]={0,0,0,0};
 short Angle_Data[4] = {0, 0, 0, 0};
 // short Angle_Speed[4]={0,0,0,0};
 int Acc_R_Data[4] = {0, 0, 0, 0};
 
-void USART3_IRQHandler(void) //串口1中断服务程序
+void USART3_IRQHandler(void) // 串口1中断服务程序
 {
     // u8 Res;
     static u8 last_data = 0;
     float temp;
     u8 data = 0;
-    static int Data_state = 0,                             //尾帧
-        cut = 0,                                           //计数
-        Data_Flag = 0;                                     //接收标志位
-    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) //接收中断(接收到的数据必须是0x0d 0x0a结尾)
+    static int Data_state = 0,                             // 尾帧
+        cut = 0,                                           // 计数
+        Data_Flag = 0;                                     // 接收标志位
+    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) // 接收中断(接收到的数据必须是0x0d 0x0a结尾)
     {
         data = USART3->DR;
         // printf(" %02X",data);
@@ -557,7 +577,7 @@ void USART3_IRQHandler(void) //串口1中断服务程序
             // 		if(cut%2==1)
             // 		Angle_Speed[(int)cut/2]=(data<<8)|last_data;
             // 	}break;
-            case 0X53: //角度输出
+            case 0X53: // 角度输出
             {
                 // Angle_Data[cut]=data;
                 if (cut % 2 == 1)

@@ -101,14 +101,14 @@ void Menu_init(void)
     Table_btn_init();
 
     /**< 1 */ lv_obj_t *label_0 = lv_label_create(lv_scr_act());
-    //频率
+    // 频率
     /**< 2 */ dropdown_1 = lv_dropdown_create(lv_scr_act());
     //    lv_obj_set_size(dropdown_1,110,40);
     //    lv_obj_set_size(dropdown_1,130,42);
     /**< 3 */ lv_obj_t *dropdown_1_label = lv_label_create(lv_scr_act());
     lv_obj_align(dropdown_1, LV_ALIGN_LEFT_MID, 110, -120);
-    //速度
-    //开始按键
+    // 速度
+    // 开始按键
     static lv_style_t font_style1;
     lv_style_init(&font_style1);
     lv_style_set_text_font(&font_style1, &lv_font_montserrat_18);
@@ -116,14 +116,14 @@ void Menu_init(void)
 
     lv_label_set_text_fmt(label_0, "Mouse vestibular oculomotor reflex test system");
     lv_obj_align(label_0, LV_ALIGN_TOP_MID, 0, 50);
-    //频率
+    // 频率
     lv_label_set_text_fmt(dropdown_1_label, "Model:");
     lv_obj_align_to(dropdown_1_label, dropdown_1, LV_ALIGN_OUT_LEFT_MID, -5, 0);
     lv_dropdown_set_options(dropdown_1, "VOR\n"
                                         "Continue\n"
                                         "Ovar\n"
                                         "VHIT");
-    //数值
+    // 数值
     lv_obj_add_event_cb(dropdown_1, event_handler, LV_EVENT_VALUE_CHANGED, NULL);
     Model_init();
 }
@@ -146,7 +146,7 @@ void INC_manual_event(lv_event_t *e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t *obj = lv_event_get_target(e);
-    static int time;
+    // static int time;
     if (code == LV_EVENT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT)
     {
         if (State.inc_Rec)
@@ -162,8 +162,8 @@ void INC_manual_event(lv_event_t *e)
         if (INC_manual_timer.State)
         {
             INC_manual_timer.e->period = 200;
-            INC_manual_timer.e->last_run = lv_tick_get(); //每按一次继续运行3秒
-            INC_manual_timer.e->repeat_count = 1;         //只运行一次
+            INC_manual_timer.e->last_run = lv_tick_get(); // 每按一次继续运行3秒
+            INC_manual_timer.e->repeat_count = 1;         // 只运行一次
         }
         else
         {
@@ -237,7 +237,7 @@ void Model_init(void)
     lv_obj_align(dropdown_F_V, LV_ALIGN_LEFT_MID, 110, 120);
     lv_obj_align_to(label_F, dropdown_F_V, LV_ALIGN_OUT_LEFT_MID, -25, 0);
 
-    //小模式初始化（不可移动初始化在上面）
+    // 小模式初始化（不可移动初始化在上面）
     VOR_init();
 
     /*end*/
@@ -258,23 +258,23 @@ void Model_init(void)
                                         "80/s");
 
     rotate_dir_buttum = lv_btn_create(lv_scr_act());
-    lv_obj_set_size(rotate_dir_buttum,40,40);
+    lv_obj_set_size(rotate_dir_buttum, 40, 40);
     static lv_style_t font_style1;
     lv_obj_t *btn_symbol = lv_label_create(rotate_dir_buttum);
     lv_style_init(&font_style1);
     lv_style_set_text_font(&font_style1, &arrow_rotate_right);
     lv_label_set_text(btn_symbol, LV_SYMBOL_rotate_right);
     lv_obj_add_style(btn_symbol, &font_style1, 0);
-    lv_obj_align(btn_symbol,LV_ALIGN_CENTER,0,0);
+    lv_obj_align(btn_symbol, LV_ALIGN_CENTER, 0, 0);
     lv_obj_align_to(rotate_dir_buttum, dropdown_V, LV_ALIGN_OUT_RIGHT_MID, 15, 0);
-    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);                             //隐藏
-    /*end*/
+    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN); // 隐藏
+                                                            /*end*/
 
     /**< 时间 */ time_box = lv_spinbox_create(lv_scr_act());
 
     lv_spinbox_set_value(time_box, State.Set_Time);
-    lv_spinbox_set_range(time_box, 1, 1000);     //幅度限制
-    lv_spinbox_set_digit_format(time_box, 4, 0); //整数两位
+    lv_spinbox_set_range(time_box, 1, 1000);     // 幅度限制
+    lv_spinbox_set_digit_format(time_box, 4, 0); // 整数两位
     lv_spinbox_step_prev(time_box);
     lv_obj_set_width(time_box, 100);
     lv_obj_t *time_box_lable = lv_label_create(lv_scr_act());
@@ -285,8 +285,8 @@ void Model_init(void)
     lv_obj_align_to(time_box_lable, time_box, LV_ALIGN_OUT_LEFT_MID, -25, 0);
     lv_obj_clear_flag(time_box, LV_OBJ_FLAG_SCROLLABLE);
     // btn
-    lv_obj_t *time_btn_m = lv_btn_create(lv_scr_act()); //加
-    lv_obj_t *time_btn_a = lv_btn_create(lv_scr_act()); //减
+    lv_obj_t *time_btn_m = lv_btn_create(lv_scr_act()); // 加
+    lv_obj_t *time_btn_a = lv_btn_create(lv_scr_act()); // 减
     lv_obj_set_size(time_btn_m, 40, 40);
     lv_obj_set_size(time_btn_a, 40, 40);
     lv_obj_align_to(time_btn_m, time_box, LV_ALIGN_OUT_RIGHT_MID, 65, 0);
@@ -302,8 +302,8 @@ void Model_init(void)
     /*end*/
     // inc btn      倾斜按键
     lv_obj_t *inc_btn_label = lv_label_create(lv_scr_act());
-    lv_obj_t *btn_up = lv_btn_create(lv_scr_act());   //加
-    lv_obj_t *btn_down = lv_btn_create(lv_scr_act()); //减
+    lv_obj_t *btn_up = lv_btn_create(lv_scr_act());   // 加
+    lv_obj_t *btn_down = lv_btn_create(lv_scr_act()); // 减
     lv_obj_set_size(btn_up, 40, 40);
     lv_obj_set_size(btn_down, 40, 40);
     lv_obj_align(btn_up, LV_ALIGN_BOTTOM_LEFT, 160, -30);
@@ -349,7 +349,7 @@ void VOR_init()
     lv_obj_clear_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);     //隐藏
+    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN); // 隐藏
     lv_label_set_text_fmt(label_F, "Frep:");
     lv_dropdown_set_options(dropdown_F_V, "0.1HZ\n"
                                           "0.2HZ\n"
@@ -371,7 +371,7 @@ void Continue_init()
     lv_obj_add_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);   //展现
+    lv_obj_clear_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN); // 展现
 }
 
 void Ovar_init()
@@ -380,7 +380,7 @@ void Ovar_init()
     lv_obj_clear_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_clear_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_clear_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);   //展现
+    lv_obj_clear_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN); // 展现
     lv_label_set_text_fmt(label_F, "Ovar:");
     lv_dropdown_set_options(dropdown_F_V, "17\n"
                                           "30\n"
@@ -393,7 +393,7 @@ void M4_init(void)
     lv_obj_add_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
-    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN);     //隐藏
+    lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN); // 隐藏
 }
 
 short Dropdown_read(lv_obj_t *dropdown)
@@ -423,6 +423,11 @@ void Start_btn_sever(lv_event_t *e)
     {
         lv_obj_t *dropdown1 = lv_obj_get_child(lv_scr_act(), 2);
         lv_obj_t *dropdown2 = lv_obj_get_child(lv_scr_act(), 4);
+        if (State.flag == next)
+        {
+            State.flag = 0;
+            return;
+        }
         if (State.inc_Rec)
         {
             State.flag = 0;
@@ -431,12 +436,17 @@ void Start_btn_sever(lv_event_t *e)
             start_btn_flash();
             return;
         }
-        if (State.motor_run == 0 || State.flag)
-            State.flag = !State.flag;
+        if (State.motor_run == 0 || State.flag == 0)
+            if (State.list_state == 1)
+            {
+                State.flag = 1;
+                State.task = 0;
+                Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
+            }
+
         if (State.flag == 1 && State.list_state == 1)
         {
-            State.task = 0;
-            Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
+
             // State.Frep_VOR = Dropdown_read_float(dropdown_F_V);
             // State.Vel = Dropdown_read(dropdown_V);
             // State.Set_Time = Set_time;
@@ -456,7 +466,7 @@ void start_btn_flash(void)
         // return;
 
         lv_label_set_text_fmt(lable_start, "#000000 Stop#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); //红
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); // 红
     }
     else
     {
@@ -466,12 +476,12 @@ void start_btn_flash(void)
                 lv_label_set_text(lable_start, "#000000 Wait#\n #000000 INC#");
             else
                 lv_label_set_text(lable_start, "#000000 Wait#");
-            lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); //绿
+            lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // 绿
         }
         else
         {
             lv_label_set_text(lable_start, "#000000 Start#");
-            lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); //绿
+            lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); // 绿
         }
     }
 }
@@ -484,32 +494,33 @@ void start_btn_change(short id, int Num)
     case 1:
     {
         lv_label_set_text_fmt(lable_start, "#000000 Stop#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); //红
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); // 红
     }
     break;
     case 2:
     {
         lv_label_set_text(lable_start, "#000000 Wait#\n #000000 INC#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); //黄
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // 黄
     }
     break;
     case 3:
     {
         lv_label_set_text(lable_start, "#000000 Wait#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); //黄
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // 黄
     }
     break;
     case 4:
     {
         lv_label_set_text(lable_start, "#000000 Start#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); //绿色
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); // 绿色
     }
     break;
     case 5:
     {
-        lv_label_set_text_fmt(lable_start, "#000000 %ds Next#", Num);
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0XFFF000), 0); //绿色
+        lv_label_set_text_fmt(lable_start, "#000000 %ds Stop#", Num);
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0XFFF000), 0); // 绿色
     }
+
     break;
     default:
         break;
