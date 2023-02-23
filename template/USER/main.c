@@ -171,7 +171,7 @@ void NEXT_timer_handler(void)
     {
         cam_timer_on_off(1000, 0);
         lv_timer_del(NEXT_timer);
-        // start_btn_flash();
+        start_btn_flash();
         return;
     }
     if (my_lv_time - State.time_start > Next_Wait_Time * 1000)

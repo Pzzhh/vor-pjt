@@ -444,9 +444,9 @@ void Start_btn_sever(lv_event_t *e)
                 Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
             }
 
-        if (State.flag == 1 && State.list_state == 1)
+        if (State.flag == 1 && State.motor_run == 1)
         {
-
+            State.flag=0;
             // State.Frep_VOR = Dropdown_read_float(dropdown_F_V);
             // State.Vel = Dropdown_read(dropdown_V);
             // State.Set_Time = Set_time;
