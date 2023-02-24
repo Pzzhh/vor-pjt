@@ -30,7 +30,7 @@
  **********************/
 #if !LV_TICK_CUSTOM
 static uint32_t sys_time = 0;
-extern uint32_t my_lv_time ;
+uint32_t my_lv_time;
 static volatile uint8_t tick_irq_flag;
 #endif
 

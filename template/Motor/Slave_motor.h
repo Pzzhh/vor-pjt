@@ -1,5 +1,5 @@
 #ifndef _Slave_motor_H
-#define _Slave_motor_H
+#define _Slave_m_Motor_Control_Hotor_H
 
 #include "stm32f4xx.h"
 #include "sys.h"

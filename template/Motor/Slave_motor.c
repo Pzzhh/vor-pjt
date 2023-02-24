@@ -13,15 +13,15 @@ void Slave_DIR_Init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
 
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); //使能GPIOF时钟
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // 使能GPIOF时钟
 
     // GPIOF9,F10初始化设置
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;      //普通输出模式
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;     //推挽输出
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;      // 普通输出模式
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;     // 推挽输出
     GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz; // 100MHz
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;   //上拉
-    GPIO_Init(GPIOC, &GPIO_InitStructure);             //初始化
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_NOPULL;   // 上拉
+    GPIO_Init(GPIOC, &GPIO_InitStructure);             // 初始化
 
     GPIO_SetBits(GPIOC, GPIO_Pin_2); // GPIOF9,F10设置高，灯灭
 }
@@ -31,31 +31,31 @@ void Slave_DIR_Init(void)
  * */
 void TIM1_encoder_Init(u32 arr, u32 psc)
 {
-    //此部分需手动修改IO口设置
+    // 此部分需手动修改IO口设置
 
     GPIO_InitTypeDef GPIO_InitStructure;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     // TIM_ICInitTypeDef TIM_ICInitStructure;
 
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);  // TIM14时钟使能
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); //使能PORTF时钟
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); // 使能PORTF时钟
 
     // GPIO_PinAFConfig(GPIOA, GPIO_PinSource12, GPIO_AF_TIM1); // GPIOF9复用为定时器14
 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_12;   // GPIOF9
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF; //复用功能
-    GPIO_Init(GPIOA, &GPIO_InitStructure);       //初始化PF9
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF; // 复用功能
+    GPIO_Init(GPIOA, &GPIO_InitStructure);       // 初始化PF9
 
-    TIM_TimeBaseStructure.TIM_Prescaler = psc;                  //定时器分频
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //向上计数模式
-    TIM_TimeBaseStructure.TIM_Period = arr;                     //自动重装载值
+    TIM_TimeBaseStructure.TIM_Prescaler = psc;                  // 定时器分频
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数模式
+    TIM_TimeBaseStructure.TIM_Period = arr;                     // 自动重装载值
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
-    TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure); //初始化定时器14
-                                                    // TIM_SelectSlaveMode
-    TIM1->SMCR = 0X7;                               //时钟源连接至定时器5通道3
+    TIM_TimeBaseInit(TIM1, &TIM_TimeBaseStructure); // 初始化定时器14
+                                                    //  TIM_SelectSlaveMode
+    TIM1->SMCR = 0X7;                               // 时钟源连接至定时器5通道3
     TIM_ARRPreloadConfig(TIM1, ENABLE);             // ARPE使能
 
-    TIM_Cmd(TIM1, ENABLE); //使能TIM14
+    TIM_Cmd(TIM1, ENABLE); // 使能TIM14
     TIM1->CNT = motor_Middele;
 }
 
@@ -65,26 +65,26 @@ void TIM1_encoder_Init(u32 arr, u32 psc)
 void IO_init()
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE); //使能GPIOA时钟
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOF, ENABLE); // 使能GPIOA时钟
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;             // GPIOF9
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;         //复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;    //速度100MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;        //推挽复用输出
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;         // 复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;    // 速度100MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;        // 推挽复用输出
     // GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        //上拉
-    GPIO_Init(GPIOF, &GPIO_InitStructure); //初始化PF9
+    GPIO_Init(GPIOF, &GPIO_InitStructure); // 初始化PF9
     GPIO_SetBits(GPIOF, GPIO_Pin_2);
 }
 
 void INC_IO_init()
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);  //使能GPIOA时钟
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE);  // 使能GPIOA时钟
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | GPIO_Pin_1; // GPIOF9
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;          //复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;     //速度100MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;         //推挽复用输出
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_OUT;          // 复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz;     // 速度100MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;         // 推挽复用输出
     // GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        //上拉
-    GPIO_Init(GPIOC, &GPIO_InitStructure); //初始化PF9
+    GPIO_Init(GPIOC, &GPIO_InitStructure); // 初始化PF9
     GPIO_ResetBits(GPIOC, GPIO_Pin_0);
     GPIO_ResetBits(GPIOC, GPIO_Pin_1);
 }
@@ -92,12 +92,12 @@ void INC_IO_init()
 void ir_sensor_init(void)
 {
     GPIO_InitTypeDef GPIO_InitStructure;
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); //使能GPIOA时钟
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOC, ENABLE); // 使能GPIOA时钟
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_4;             // GPIOF9
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;          //复用功能
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN;          // 复用功能
     GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;
     // GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;        //上拉
-    GPIO_Init(GPIOC, &GPIO_InitStructure); //初始化PF9
+    GPIO_Init(GPIOC, &GPIO_InitStructure); // 初始化PF9
 }
 
 // /**
@@ -157,21 +157,21 @@ void TIM4_Motor_Int_Init(u16 arr, u16 psc)
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); ///使能TIM4时钟
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM4, ENABLE); /// 使能TIM4时钟
 
-    TIM_TimeBaseInitStructure.TIM_Period = arr;                     //自动重装载值
-    TIM_TimeBaseInitStructure.TIM_Prescaler = psc;                  //定时器分频
-    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up; //向上计数模式
+    TIM_TimeBaseInitStructure.TIM_Period = arr;                     // 自动重装载值
+    TIM_TimeBaseInitStructure.TIM_Prescaler = psc;                  // 定时器分频
+    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数模式
     TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 
-    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure); //初始化TIM4
+    TIM_TimeBaseInit(TIM4, &TIM_TimeBaseInitStructure); // 初始化TIM4
 
-    TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE); //允许定时器3更新中断
-    TIM_Cmd(TIM4, ENABLE);                     //使能定时器3
+    TIM_ITConfig(TIM4, TIM_IT_Update, ENABLE); // 允许定时器3更新中断
+    TIM_Cmd(TIM4, ENABLE);                     // 使能定时器3
 
-    NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;              //定时器3中断
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00; //抢占优先级1
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;        //子优先级3
+    NVIC_InitStructure.NVIC_IRQChannel = TIM4_IRQn;              // 定时器3中断
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x00; // 抢占优先级1
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x00;        // 子优先级3
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 }
@@ -181,57 +181,57 @@ void TIM7_DataScope_Init(u16 arr, u16 psc)
     TIM_TimeBaseInitTypeDef TIM_TimeBaseInitStructure;
     NVIC_InitTypeDef NVIC_InitStructure;
 
-    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE); ///使能TIM7时钟
+    RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM7, ENABLE); /// 使能TIM7时钟
 
-    TIM_TimeBaseInitStructure.TIM_Period = arr;                     //自动重装载值
-    TIM_TimeBaseInitStructure.TIM_Prescaler = psc;                  //定时器分频
-    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up; //向上计数模式
+    TIM_TimeBaseInitStructure.TIM_Period = arr;                     // 自动重装载值
+    TIM_TimeBaseInitStructure.TIM_Prescaler = psc;                  // 定时器分频
+    TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数模式
     TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 
-    TIM_TimeBaseInit(TIM7, &TIM_TimeBaseInitStructure); //初始化TIM7
+    TIM_TimeBaseInit(TIM7, &TIM_TimeBaseInitStructure); // 初始化TIM7
 
-    NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;              //定时器3中断
-    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01; //抢占优先级1
-    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;        //子优先级3
+    NVIC_InitStructure.NVIC_IRQChannel = TIM7_IRQn;              // 定时器3中断
+    NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 0x01; // 抢占优先级1
+    NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0x01;        // 子优先级3
     NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
     NVIC_Init(&NVIC_InitStructure);
 
-    TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE); //允许定时器3更新中断
-    TIM_Cmd(TIM7, ENABLE);                     //使能定时器3
+    TIM_ITConfig(TIM7, TIM_IT_Update, ENABLE); // 允许定时器3更新中断
+    TIM_Cmd(TIM7, ENABLE);                     // 使能定时器3
 }
 
 void TIM5_Slave_Init(u32 arr, u32 psc)
 {
-    //此部分需手动修改IO口设置
+    // 此部分需手动修改IO口设置
 
     GPIO_InitTypeDef GPIO_InitStructure;
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     TIM_OCInitTypeDef TIM_OCInitStructure;
 
     RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM5, ENABLE);  // TIM5时钟使能
-    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); //使能PORTF时钟
+    RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOA, ENABLE); // 使能PORTF时钟
 
     GPIO_PinAFConfig(GPIOA, GPIO_PinSource2, GPIO_AF_TIM5); // GPIOF9复用为定时器14
 
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;          // GPIOF9
-    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;       //复用功能
-    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz; //速度100MHz
-    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;     //推挽复用输出
-    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;       //上拉
-    GPIO_Init(GPIOA, &GPIO_InitStructure);             //初始化PF9
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF;       // 复用功能
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_100MHz; // 速度100MHz
+    GPIO_InitStructure.GPIO_OType = GPIO_OType_PP;     // 推挽复用输出
+    GPIO_InitStructure.GPIO_PuPd = GPIO_PuPd_UP;       // 上拉
+    GPIO_Init(GPIOA, &GPIO_InitStructure);             // 初始化PF9
 
-    TIM_TimeBaseStructure.TIM_Prescaler = psc;                  //定时器分频
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //向上计数模式
-    TIM_TimeBaseStructure.TIM_Period = arr;                     //自动重装载值
+    TIM_TimeBaseStructure.TIM_Prescaler = psc;                  // 定时器分频
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数模式
+    TIM_TimeBaseStructure.TIM_Period = arr;                     // 自动重装载值
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 
-    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure); //初始化定时器14
+    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure); // 初始化定时器14
 
-    //初始化TIM5 Channel1 PWM模式
-    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;             //选择定时器模式:TIM脉冲宽度调制模式2
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;      //输出极性:TIM输出比较极性低
-    TIM_OC3Init(TIM5, &TIM_OCInitStructure);                      //根据T指定的参数初始化外设TIM1 4OC1
+    // 初始化TIM5 Channel1 PWM模式
+    TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1;             // 选择定时器模式:TIM脉冲宽度调制模式2
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; // 比较输出使能
+    TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low;      // 输出极性:TIM输出比较极性低
+    TIM_OC3Init(TIM5, &TIM_OCInitStructure);                      // 根据T指定的参数初始化外设TIM1 4OC1
     // TIM_SelectMasterSlaveMode(TIM5,)
     TIM5->CR2 = 0X60;
     TIM_SelectMasterSlaveMode(TIM5, TIM_MasterSlaveMode_Enable);
@@ -245,30 +245,30 @@ void TIM5_Slave_Init(u32 arr, u32 psc)
 
 void TIM5_Slave_Set(u32 arr, u32 psc)
 {
-    //此部分需手动修改IO口设置
+    // 此部分需手动修改IO口设置
     TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
     // TIM_OCInitTypeDef  TIM_OCInitStructure;
 
-    TIM_TimeBaseStructure.TIM_Prescaler = psc;                  //定时器分频
-    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; //向上计数模式
-    TIM_TimeBaseStructure.TIM_Period = arr;                     //自动重装载值
+    TIM_TimeBaseStructure.TIM_Prescaler = psc;                  // 定时器分频
+    TIM_TimeBaseStructure.TIM_CounterMode = TIM_CounterMode_Up; // 向上计数模式
+    TIM_TimeBaseStructure.TIM_Period = arr;                     // 自动重装载值
     TIM_TimeBaseStructure.TIM_ClockDivision = TIM_CKD_DIV1;
 
-    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure); //初始化定时器14
+    TIM_TimeBaseInit(TIM5, &TIM_TimeBaseStructure); // 初始化定时器14
     TIM5->CCR3 = arr / 2;
-    //初始化TIM5 Channel1 PWM模式
-    // TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; //选择定时器模式:TIM脉冲宽度调制模式2
-    // TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
-    // TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //输出极性:TIM输出比较极性低
-    // // TIM_OC3Init(TIM5, &TIM_OCInitStructure);  //根据T指定的参数初始化外设TIM1 4OC1
-    // TIM_SelectMasterSlaveMode(TIM5,)
-    // TIM5->CR2=0X60;
-    // TIM_SelectMasterSlaveMode(TIM5,TIM_MasterSlaveMode_Enable);
-    // TIM_OC3PreloadConfig(TIM5, TIM_OCPreload_Enable);  //使能TIM5在CCR1上的预装载寄存器
+    // 初始化TIM5 Channel1 PWM模式
+    //  TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1; //选择定时器模式:TIM脉冲宽度调制模式2
+    //  TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable; //比较输出使能
+    //  TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_Low; //输出极性:TIM输出比较极性低
+    //  // TIM_OC3Init(TIM5, &TIM_OCInitStructure);  //根据T指定的参数初始化外设TIM1 4OC1
+    //  TIM_SelectMasterSlaveMode(TIM5,)
+    //  TIM5->CR2=0X60;
+    //  TIM_SelectMasterSlaveMode(TIM5,TIM_MasterSlaveMode_Enable);
+    //  TIM_OC3PreloadConfig(TIM5, TIM_OCPreload_Enable);  //使能TIM5在CCR1上的预装载寄存器
 
     //  TIM_ARRPreloadConfig(TIM5,ENABLE);//ARPE使能
 
-    TIM_Cmd(TIM5, ENABLE); //使能TIM14
+    TIM_Cmd(TIM5, ENABLE); // 使能TIM14
 }
 
 float sin_data;
@@ -278,7 +278,7 @@ extern struct data1 State;
 #define Pi 3.1415926
 void TIM4_IRQHandler(void)
 {
-    if (TIM4->SR & TIM_IT_Update) //溢出中断
+    if (TIM4->SR & TIM_IT_Update) // 溢出中断
     {
         motor_handler();
     }
@@ -360,10 +360,10 @@ void VHIT_handler(void)
     }
 }
 
-//上位机
+// 上位机
 void TIM7_IRQHandler(void)
 {
-    if (TIM7->SR & TIM_IT_Update) //溢出中断
+    if (TIM7->SR & TIM_IT_Update) // 溢出中断
     {
         DataScope_DMA(5, (double)Out_Put_data, (double)sin_time, (double)TIM1->CNT, (double)tempc, (double)tempb);
     }
@@ -517,7 +517,7 @@ void Slave_motor(int Angle_speed, float Feq)
 u8 Slave_Back(int Tag_Pos)
 {
 // #define P 0.08
-#define limit 8000 //限速
+#define limit 8000 // 限速
     float p = 250;
 #define Val 20
     // static short Last_data;
@@ -574,7 +574,7 @@ u8 slave_sin_back(void)
     // if(sin_time%1000)
     float time_max = 1000;
     int tem = time_max / State.Frep_VOR;
-    //完整周期
+    // 完整周期
     if (sin_time % tem == 0)
     {
         if (Slave_Back(motor_Middele))
@@ -602,25 +602,45 @@ void Slave_Motor_Vel_Mode(float Vel, u8 clear_fg)
 
 u8 INC_Ctrl(float tag)
 {
-    #define inc_limit 0.1
+#define inc_limit 0.1
     // static u8 times;
     static int time_limit;
-    float minus = State.inc_ang-tag;
+    static uint8_t finish = 0;
+    float minus = State.inc_ang - tag;
     printf("\r\n%d", time_limit);
-    if(State.inc_ang<0.2&&tag<1)
-        time_limit++;
-    if (State.inc_ang < tag)
-        PCout(1) = 0, PCout(0) = 1;
-    else
-        PCout(1) = 1, PCout(0) = 0;
-    if (minus < inc_limit && minus > -inc_limit || time_limit > 8000)
+    if (finish == 0)
     {
-        PCout(1) = 0, PCout(0) = 0;
-        time_limit = 0;
-        return 1;
+        if (State.inc_ang < 0.2 && tag < 1)
+            time_limit++;
+        if (State.inc_ang < tag)
+            PCout(1) = 0, PCout(0) = 1;
+        else
+            PCout(1) = 1, PCout(0) = 0;
+        if (minus < inc_limit && minus > -inc_limit || time_limit > 8000)
+        {
+            PCout(1) = 0, PCout(0) = 0;
+            finish = 1;
+            time_limit = 0;
+            // return 1;
+        }
+        else
+            return 0;
     }
     else
-        return 0;
+    {
+        if (State.inc_ang < 5 && time_limit < 2000)
+        {
+            PCout(1) = 1, PCout(0) = 0;
+            time_limit++;
+        }
+        else
+        {
+            finish = 0;
+            time_limit = 0;
+            return 1;
+        }
+    }
+    return 0;
 }
 
 void mode4(void)

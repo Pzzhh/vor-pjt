@@ -1245,6 +1245,11 @@
               <FileType>1</FileType>
               <FilePath>..\Motor\Slave_motor.c</FilePath>
             </File>
+            <File>
+              <FileName>motor_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Motor\motor_control.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -2608,6 +2613,11 @@
               <FileType>1</FileType>
               <FilePath>..\Motor\Slave_motor.c</FilePath>
             </File>
+            <File>
+              <FileName>motor_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Motor\motor_control.c</FilePath>
+            </File>
           </Files>
         </Group>
       </Groups>
@@ -3850,6 +3860,11 @@
               <FileName>Slave_motor.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Motor\Slave_motor.c</FilePath>
+            </File>
+            <File>
+              <FileName>motor_control.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Motor\motor_control.c</FilePath>
             </File>
           </Files>
         </Group>

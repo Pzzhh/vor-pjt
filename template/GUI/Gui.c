@@ -423,38 +423,41 @@ void Start_btn_sever(lv_event_t *e)
     {
         lv_obj_t *dropdown1 = lv_obj_get_child(lv_scr_act(), 2);
         lv_obj_t *dropdown2 = lv_obj_get_child(lv_scr_act(), 4);
-        if (State.flag == next)
-        {
-            State.flag = 0;
-            return;
-        }
-        if (State.inc_Rec)
-        {
-            State.flag = 0;
-            State.inc_Rec = 0;
-            State.task = 8;
-            start_btn_flash();
-            return;
-        }
-        if (State.motor_run == 0 || State.flag == 0)
-            if (State.list_state == 1)
-            {
-                State.flag = 1;
-                State.task = 0;
-                Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
-            }
+        State.btn_clicked = 1;
+        // if (State.flag == next)
+        // {
+        //     State.flag = 0;
+        //     return;
+        // }
+        // if (State.inc_Rec)
+        // {
+        //     // State.flag = 0;
+        //     // State.inc_Rec = 0;
+        //     // State.task = 8;
+        //     // start_btn_flash();
+        //     // return;
+        // }
+        // if (State.motor_run == 0 || State.flag == 0)
+        //     if (State.list_state == 1)
+        //     {
+        //         State.flag = 1;
+        //         State.task = 0;
+        //         lv_label_set_text_fmt(lable_start, "#000000 Stop#");
+        //         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); // 红
+        //         Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
+        //     }
 
-        if (State.flag == 1 && State.motor_run == 1)
-        {
-            State.flag=0;
-            // State.Frep_VOR = Dropdown_read_float(dropdown_F_V);
-            // State.Vel = Dropdown_read(dropdown_V);
-            // State.Set_Time = Set_time;
-        }
-        if (State.flag == next)
-            State.flag = 0;
-        LV_LOG_USER("%d", State.flag);
-        start_btn_flash();
+        // if (State.flag == 1 && State.motor_run == 1)
+        // {
+        //     State.flag = 0;
+        //     // State.Frep_VOR = Dropdown_read_float(dropdown_F_V);
+        //     // State.Vel = Dropdown_read(dropdown_V);
+        //     // State.Set_Time = Set_time;
+        // }
+        // if (State.flag == next)
+        //     State.flag = 0;
+        // LV_LOG_USER("%d", State.flag);
+        // start_btn_flash();
     }
 }
 void start_btn_flash(void)
@@ -486,42 +489,53 @@ void start_btn_flash(void)
     }
 }
 
-void start_btn_change(short id, int Num)
+void start_btn_change(btn_id id, int Num)
 {
     //    int temp= lv_tick_get()-start_time,tempb =State.Set_Time ;
     switch (id)
     {
-    case 1:
+    case bt_stop:
     {
-        lv_label_set_text_fmt(lable_start, "#000000 Stop#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); // 红
+        lv_label_set_text_fmt(lable_start, "#000000  Stop#");
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0XFFF000), 0); // 红
     }
     break;
-    case 2:
+    case bt_wait_inc:
     {
         lv_label_set_text(lable_start, "#000000 Wait#\n #000000 INC#");
         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // 黄
     }
     break;
-    case 3:
+    case bt_wait_back:
     {
         lv_label_set_text(lable_start, "#000000 Wait#");
         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // 黄
     }
     break;
-    case 4:
+    case bt_start:
     {
         lv_label_set_text(lable_start, "#000000 Start#");
         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); // 绿色
     }
     break;
-    case 5:
+    case bt_next:
     {
         lv_label_set_text_fmt(lable_start, "#000000 %ds Stop#", Num);
         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0XFFF000), 0); // 绿色
     }
-
     break;
+    case bt_run:
+    {
+        lv_label_set_text_fmt(lable_start, "#000000  Stop#");
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0XFF0000), 0); // 绿色
+    }
+    break;
+    // case bt_start:
+    // {
+    //     lv_label_set_text(lable_start, "#000000 Start#");
+    //     lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); // 绿
+    // }
+    // break;
     default:
         break;
     }
