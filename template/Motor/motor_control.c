@@ -301,9 +301,11 @@ void next_motortask_timer_handler(lv_timer_t *e)
 
 void NEXT_timer_handler(lv_timer_t *e)
 {
+		extern   void Start_timer_handler(lv_timer_t *e);
     int time = (int)my_lv_time - State.time_start;
     time = time / 1000;
     static uint32_t my_time;
+    // static uint8_t inc_standby=0;
     if (motor_event_monitor() == cmd_off)
     {
         State.flag = 0;
@@ -319,31 +321,41 @@ void NEXT_timer_handler(lv_timer_t *e)
     }
     if (my_lv_time - State.time_start > Next_Wait_Time * 1000)
     {
+        start_btn_change(bt_wait_inc, 0);
         if (Task_lisk(State.task)->next->state)
         {
-            State.task++;
-            State.flag = 1;
-            // State.btn_clicked = 1; // 触发按键
-            lv_timer_create(next_motortask_timer_handler, 300, 0);
-            cam_timer_on_off(1000, 0);
-            start_btn_change(bt_stop, 0); // 还有任务所以要显示停止
-            printf("\r\n next");
-            lv_timer_del(e);
-            return;
+            if (State.cam_state)
+                cam_timer_on_off(1000, 0);
+            if (State.inc_Rec == 0||State.mode!=OVAR_ID)
+            {
+                State.task++;
+                State.flag = 1;
+                // State.btn_clicked = 1; // 触发按键
+                lv_timer_create(next_motortask_timer_handler, 300, 0);
+                start_btn_change(bt_stop, 0); // 还有任务所以要显示停止
+                printf("\r\n next");
+                lv_timer_del(e);
+                return;
+            }
         }
         else
         {
-            printf("\r\n next_end");
-            cam_timer_on_off(1000, 0);
-            lv_timer_create(Start_timer_handler, 300, (void *)1);
-            start_btn_change(bt_start, 0); // 没有任务所以要显示启动
-            start_btn_flash();
-            State.flag = 0;
-            lv_timer_del(e);
-            return;
+            if (State.cam_state)
+                cam_timer_on_off(1000, 0);
+            if (State.inc_Rec == 0||State.mode!=OVAR_ID)
+            {
+                printf("\r\n next_end");
+                lv_timer_create(Start_timer_handler, 300, (void *)1);
+                start_btn_change(bt_start, 0); // 没有任务所以要显示启动
+                start_btn_flash();
+                State.flag = 0;
+                lv_timer_del(e);
+                return;
+            }
         }
     }
-    start_btn_change(bt_next, 10 - time);
+    else
+        start_btn_change(bt_next, 10 - time);
 }
 
 void INC_timer_handler(lv_timer_t *e)
@@ -369,22 +381,23 @@ void INC_timer_handler(lv_timer_t *e)
             printf("\r\n inc->motor %d %d %d", State.flag, State.inc_Rec, State.motor_run);
             lv_timer_del(e);
         }
-        if (State.motor_run == 0 && State.flag == 0 && my_lv_time - my_time > 2000)
-        {
-            // end;
-            State.time_start = my_lv_time;
-            State.flag = bt_next;
-            lv_timer_create(NEXT_timer_handler, 100, NULL);
-            // printf("\r\n inc->next %d %d %d", State.flag, State.inc_Rec, State.motor_run);
-            lv_timer_del(e);
-        }
         inc_up = 0;
         inc_down = 0;
     }
-    else
+    if (State.motor_run == 0 && State.flag == 0)
     {
-        my_time = my_lv_time;
+        // end;
+        State.time_start = my_lv_time;
+        State.flag = bt_next;
+        lv_timer_create(NEXT_timer_handler, 100, NULL);
+        // printf("\r\n inc->next %d %d %d", State.flag, State.inc_Rec, State.motor_run);
+        lv_timer_del(e);
     }
+
+    // else
+    // {
+    //     my_time = my_lv_time;
+    // }
     start_btn_change(bt_wait_inc, 0);
 }
 

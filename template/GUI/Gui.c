@@ -520,7 +520,7 @@ void start_btn_change(btn_id id, int Num)
     break;
     case bt_next:
     {
-        lv_label_set_text_fmt(lable_start, "#000000 %ds Stop#", Num);
+        lv_label_set_text_fmt(lable_start, "#000000 %ds REC\r#000000   stop#", Num);
         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0XFFF000), 0); // 绿色
     }
     break;

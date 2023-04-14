@@ -6,6 +6,9 @@ LR_IROM1 0x08000000 0x00050000  {    ; load region size_region
   ER_IROM1 0x08000000 0x00050000  {  ; load address = execution address
    *.o (RESET, +First)
    *(InRoot$$Sections)
+    startup_stm32f40_41xxx.o (+RO)
+    Slave_motor.o (+RO)
+    motor_control.o (+RO)
    .ANY (+RO)
    .ANY (+XO)
   }
@@ -14,3 +17,8 @@ LR_IROM1 0x08000000 0x00050000  {    ; load region size_region
   }
 }
 
+LR_IROM2 0x08050000 0x00150000  {
+  ER_IROM2 0x08050000 0x00150000  {  ; load address = execution address
+   .ANY (+RO)
+  }
+}
