@@ -28,6 +28,7 @@ void Slave_Motor_Vel_Mode(float Vel, u8 clear_fg);
 u8 INC_Ctrl(float tag);
 void VOR_handler(void);
 void Continue_handler(void);
+void TC_handler(void);
 void motor_handler(void);
 void OVAR_handler(void);
 void INC_IO_init(void);

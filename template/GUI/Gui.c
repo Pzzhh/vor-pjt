@@ -90,6 +90,9 @@ static void event_handler(lv_event_t *e)
         case 'C':
             Continue_init(), Dropdown_mode = Ctn_ID;
             break;
+        case 'T':
+            Tc_init(), Dropdown_mode = TC_ID;
+            break;
         }
     }
 }
@@ -108,7 +111,7 @@ void Menu_init(void)
     /**< 3 */ lv_obj_t *dropdown_1_label = lv_label_create(lv_scr_act());
     lv_obj_align(dropdown_1, LV_ALIGN_LEFT_MID, 110, -120);
     // 速度
-    // 开始按键
+    // 开始按�?
     static lv_style_t font_style1;
     lv_style_init(&font_style1);
     lv_style_set_text_font(&font_style1, &lv_font_montserrat_18);
@@ -122,8 +125,9 @@ void Menu_init(void)
     lv_dropdown_set_options(dropdown_1, "VOR\n"
                                         "Continue\n"
                                         "Ovar\n"
-                                        "VHIT");
-    // 数值
+                                        "VHIT\n"
+                                        "TC");
+    // 数�?
     lv_obj_add_event_cb(dropdown_1, event_handler, LV_EVENT_VALUE_CHANGED, NULL);
     Model_init();
 }
@@ -162,8 +166,8 @@ void INC_manual_event(lv_event_t *e)
         if (INC_manual_timer.State)
         {
             INC_manual_timer.e->period = 200;
-            INC_manual_timer.e->last_run = lv_tick_get(); // 每按一次继续运行3秒
-            INC_manual_timer.e->repeat_count = 1;         // 只运行一次
+            INC_manual_timer.e->last_run = lv_tick_get(); // 每按一次继续运�?3�?
+            INC_manual_timer.e->repeat_count = 1;         // 只运行一�?
         }
         else
         {
@@ -285,8 +289,8 @@ void Model_init(void)
     lv_obj_align_to(time_box_lable, time_box, LV_ALIGN_OUT_LEFT_MID, -25, 0);
     lv_obj_clear_flag(time_box, LV_OBJ_FLAG_SCROLLABLE);
     // btn
-    lv_obj_t *time_btn_m = lv_btn_create(lv_scr_act()); // 加
-    lv_obj_t *time_btn_a = lv_btn_create(lv_scr_act()); // 减
+    lv_obj_t *time_btn_m = lv_btn_create(lv_scr_act()); // �?
+    lv_obj_t *time_btn_a = lv_btn_create(lv_scr_act()); // �?
     lv_obj_set_size(time_btn_m, 40, 40);
     lv_obj_set_size(time_btn_a, 40, 40);
     lv_obj_align_to(time_btn_m, time_box, LV_ALIGN_OUT_RIGHT_MID, 65, 0);
@@ -302,8 +306,8 @@ void Model_init(void)
     /*end*/
     // inc btn      倾斜按键
     lv_obj_t *inc_btn_label = lv_label_create(lv_scr_act());
-    lv_obj_t *btn_up = lv_btn_create(lv_scr_act());   // 加
-    lv_obj_t *btn_down = lv_btn_create(lv_scr_act()); // 减
+    lv_obj_t *btn_up = lv_btn_create(lv_scr_act());   // �?
+    lv_obj_t *btn_down = lv_btn_create(lv_scr_act()); // �?
     lv_obj_set_size(btn_up, 40, 40);
     lv_obj_set_size(btn_down, 40, 40);
     lv_obj_align(btn_up, LV_ALIGN_BOTTOM_LEFT, 160, -30);
@@ -320,7 +324,7 @@ void Model_init(void)
     /*end*/
     // reset btn         复位按键
     // lv_obj_t *reset_btn_label = lv_label_create(lv_scr_act());
-    // lv_obj_t *reset_btn = lv_btn_create(lv_scr_act()); //减
+    // lv_obj_t *reset_btn = lv_btn_create(lv_scr_act()); //�?
     // lv_obj_set_size(reset_btn, 40, 40);
     // lv_obj_align(reset_btn, LV_ALIGN_BOTTOM_LEFT, 20, -30);
     // lv_obj_align_to(reset_btn_label, reset_btn, LV_ALIGN_OUT_TOP_MID, 0, -20);
@@ -332,7 +336,7 @@ void Model_init(void)
     // end
     // cam btn         复位按键
     // lv_obj_t *cam_btn_label = lv_label_create(lv_scr_act());
-    // lv_obj_t *cam_btn = lv_btn_create(lv_scr_act()); //减
+    // lv_obj_t *cam_btn = lv_btn_create(lv_scr_act()); //�?
     // lv_obj_set_size(cam_btn, 40, 40);
     // lv_obj_align(cam_btn, LV_ALIGN_BOTTOM_LEFT, 100, -30);
     // lv_obj_align_to(cam_btn_label, cam_btn, LV_ALIGN_OUT_TOP_MID, 0, -7);
@@ -385,6 +389,7 @@ void Ovar_init()
     lv_dropdown_set_options(dropdown_F_V, "17\n"
                                           "30\n"
                                           "45");
+    lv_spinbox_set_value(time_box, 60);
 }
 
 void M4_init(void)
@@ -394,6 +399,20 @@ void M4_init(void)
     lv_obj_add_flag(label_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN); // 隐藏
+}
+
+void Tc_init(void)
+{
+    lv_obj_add_flag(label_F, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_add_flag(dropdown_F_V, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(label_V, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(dropdown_V, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(rotate_dir_buttum, LV_OBJ_FLAG_HIDDEN); // 展现
+    lv_dropdown_set_options(dropdown_V, "72/S\n"
+                                          "108/S\n"
+                                          "144/S");
+    State.Set_Time=62;
+    lv_spinbox_set_value(time_box,State.Set_Time);
 }
 
 short Dropdown_read(lv_obj_t *dropdown)
@@ -443,7 +462,7 @@ void Start_btn_sever(lv_event_t *e)
         //         State.flag = 1;
         //         State.task = 0;
         //         lv_label_set_text_fmt(lable_start, "#000000 Stop#");
-        //         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); // 红
+        //         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); // �?
         //         Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
         //     }
 
@@ -469,7 +488,7 @@ void start_btn_flash(void)
         // return;
 
         lv_label_set_text_fmt(lable_start, "#000000 Stop#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); // 红
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFF0000), 0); // �?
     }
     else
     {
@@ -479,12 +498,12 @@ void start_btn_flash(void)
                 lv_label_set_text(lable_start, "#000000 Wait#\n #000000 INC#");
             else
                 lv_label_set_text(lable_start, "#000000 Wait#");
-            lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // 绿
+            lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // �?
         }
         else
         {
             lv_label_set_text(lable_start, "#000000 Start#");
-            lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); // 绿
+            lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); // �?
         }
     }
 }
@@ -497,19 +516,19 @@ void start_btn_change(btn_id id, int Num)
     case bt_stop:
     {
         lv_label_set_text_fmt(lable_start, "#000000  Stop#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0XFFF000), 0); // 红
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0XFFF000), 0); // �?
     }
     break;
     case bt_wait_inc:
     {
         lv_label_set_text(lable_start, "#000000 Wait#\n #000000 INC#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // 黄
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // �?
     }
     break;
     case bt_wait_back:
     {
         lv_label_set_text(lable_start, "#000000 Wait#");
-        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // 黄
+        lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); // �?
     }
     break;
     case bt_start:
@@ -533,7 +552,7 @@ void start_btn_change(btn_id id, int Num)
     // case bt_start:
     // {
     //     lv_label_set_text(lable_start, "#000000 Start#");
-    //     lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); // 绿
+    //     lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); // �?
     // }
     // break;
     default:
@@ -552,12 +571,12 @@ void start_btn_change(btn_id id, int Num)
 
     //         else
 
-    //         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); //绿
+    //         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0xFFFF00), 0); //�?
     //     }
     //     else
     //     {
     //         lv_label_set_text(lable_start, "#000000 Start#");
-    //         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); //绿
+    //         lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x7CFC00), 0); //�?
     //     }
     // }
 }

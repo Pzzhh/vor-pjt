@@ -304,6 +304,9 @@ void motor_handler(void)
     case VHIT_ID:
         VHIT_handler();
         break;
+    case TC_ID:
+        TC_handler();
+        break;
     default:
         break;
     }
@@ -360,6 +363,27 @@ void VHIT_handler(void)
     }
 }
 
+void TC_handler(void)
+{
+#define TCone_time 1000
+    extern int TC_Mode(int *slowDownTick, short *flag);
+    static int slowDownTick = TCone_time;
+    static short ssflag = 0;
+    static short StopFlag = false;
+    if (State.motor_run && State.flag && StopFlag != true)
+        StopFlag = TC_Mode(&slowDownTick, &ssflag);
+    else
+    {
+        if (State.flag == 0 && State.motor_run)
+            if (Slave_Back(motor_Middele))
+            {
+                State.motor_run = 0;
+                ssflag = 0;
+                slowDownTick = TCone_time;
+                StopFlag = false;
+            }
+    }
+}
 // ÉÏÎ»»ú
 void TIM7_IRQHandler(void)
 {
@@ -663,4 +687,42 @@ void mode4(void)
     }
     if (sin_time >= 5000)
         sin_time = 0, flag = 0;
+}
+
+int TC_Mode(int* const slowDownTick, short* const flag)
+{
+
+    int t = 0;
+    float Vel = State.Vel;
+
+    t = sin_time * 2 / 3;
+    sin_time++;
+    // static int slowDownTick = TCone_time;
+    // temp = t;
+    // t=t-temp;
+    // sin_data = zhengtai[t]
+    if (sin_time < TCone_time)
+        Slave_Motor_Vel_Mode(Vel * State.dir / 1000 * sin_time, 0);
+    if (sin_time >= TCone_time && *flag == 0)
+        *flag = 1;
+    if (*flag == 1)
+    {
+        Slave_Motor_Vel_Mode(Vel * State.dir, 0);
+    }
+    if (sin_time / 1000 > State.Set_Time - 1)
+    {
+        *flag = 2;
+    }
+    if (*flag == 2)
+    {
+        Slave_Motor_Vel_Mode(Vel * State.dir / 1000 * (*slowDownTick), 0);
+        (*slowDownTick)--;
+    }
+    if (*slowDownTick == 0)
+    {
+        Slave_Motor_Vel_Mode(0, 0);
+        sin_time = 0;
+        return 1;
+    }
+    return 0;
 }

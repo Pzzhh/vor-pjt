@@ -2,7 +2,7 @@
 #include "usart.h"
 #include "GUI.h"
 // struct list_s MY_Task[10];
-#define Fn_1 1 //实现添加时自动定位到第一个选项  包括删除
+#define Fn_1 1 // 实现添加时自动定位到第一个选项  包括删除
 
 extern lv_obj_t *dropdown_F_V;
 extern lv_obj_t *dropdown_V;
@@ -17,7 +17,7 @@ link *Task_lisk(int num);
 void Table_touch_handle(lv_event_t *e);
 // extern short Set_time;
 extern lv_obj_t *dropdown_1;
-short MyListNum; //目前数
+short MyListNum; // 目前数
 struct
 {
     lv_obj_t *Table;
@@ -129,20 +129,22 @@ void Dropdown_read_option(lv_obj_t *dropdown, float choose)
 
 void task_change_sever(link *temp)
 {
-    short vel=temp->Vel;
+    short vel = temp->Vel;
     switch (temp->mode)
     {
     case VOR_ID:
-        VOR_init(), Dropdown_mode = VOR_ID, lv_dropdown_set_selected(dropdown_1, 0);
+        VOR_init(), Dropdown_mode = VOR_ID, lv_dropdown_set_selected(dropdown_1, VOR_ID - 1);
         break;
     case OVAR_ID:
-        Ovar_init(), Dropdown_mode = OVAR_ID, lv_dropdown_set_selected(dropdown_1, 2);
+        Ovar_init(), Dropdown_mode = OVAR_ID, lv_dropdown_set_selected(dropdown_1, OVAR_ID - 1);
         break;
     case Ctn_ID:
-        Continue_init(), Dropdown_mode = Ctn_ID, lv_dropdown_set_selected(dropdown_1, 1);
+        Continue_init(), Dropdown_mode = Ctn_ID, lv_dropdown_set_selected(dropdown_1, Ctn_ID - 1);
         break;
     case VHIT_ID:
-        M4_init(), Dropdown_mode = VHIT_ID, lv_dropdown_set_selected(dropdown_1, 3);
+        M4_init(), Dropdown_mode = VHIT_ID, lv_dropdown_set_selected(dropdown_1, VHIT_ID-1);
+    case TC_ID:
+        Tc_init(), Dropdown_mode = TC_ID, lv_dropdown_set_selected(dropdown_1, TC_ID - 1);
         break;
     }
     Dropdown_read_option(dropdown_F_V, temp->Frep_VOR);
@@ -209,7 +211,7 @@ void table_set(int flag, int Num_choose)
         printf("\r\n frep %f", e->Frep_VOR);
         e->mode = Dropdown_mode;
         e->Vel = Dropdown_read(dropdown_V);
-        if (State.dir == 0 && (e->mode == Ctn_ID||e->mode==OVAR_ID))              //方向反转
+        if (State.dir == 0 && (e->mode == Ctn_ID || e->mode == OVAR_ID || e->mode == TC_ID)) // 方向反转
             e->Vel = -e->Vel;
         e->Set_Time = Set_time;
         table = e->Table;
@@ -246,7 +248,7 @@ void table_set(int flag, int Num_choose)
         e->Frep_VOR = Dropdown_read_float(dropdown_F_V);
         e->mode = Dropdown_mode;
         e->Vel = Dropdown_read(dropdown_V);
-        if (State.dir == 0 && (e->mode == Ctn_ID||e->mode==OVAR_ID))         //方向反转
+        if (State.dir == 0 && (e->mode == Ctn_ID || e->mode == OVAR_ID)) // 方向反转
             e->Vel = -e->Vel;
         e->Set_Time = Set_time;
         // Task_lisk(Table_Choose)->Frep_VOR = State.Frep_VOR;
@@ -261,7 +263,7 @@ void table_set(int flag, int Num_choose)
 
 void Table_reflush(lv_obj_t *table, link *e)
 {
-    const char *mode_text[5] = {"NULL", "VOR", "CON", "OVAR", "VHIT"};
+    const char *mode_text[] = {"NULL", "VOR", "CON", "OVAR", "VHIT", "TC"};
     lv_table_set_cell_value(table, 0, 0, mode_text[e->mode]);
     lv_table_set_cell_value(table, 0, 1, " ");
     lv_table_set_cell_value(table, 0, 2, " ");
@@ -293,12 +295,18 @@ void Table_reflush(lv_obj_t *table, link *e)
         lv_table_set_cell_value_fmt(table, 0, 1, "%d T", e->Set_Time);
     }
     break;
+    case TC_ID:
+    {
+        lv_table_set_cell_value_fmt(table, 0, 1, "%d s ", e->Set_Time);
+        lv_table_set_cell_value_fmt(table, 0, 2, "%d", e->Vel);
+    }
+    break;
     default:
         break;
     }
 }
 
-//排列
+// 排列
 void table_arrange()
 {
     int i;
@@ -311,7 +319,7 @@ void table_arrange()
         }
     }
 }
-//排列动画
+// 排列动画
 void table_arrange_auto()
 {
     int i;
@@ -372,7 +380,7 @@ void Table_btn_handler(lv_event_t *e)
 {
     int temp = (int)e->user_data;
     lv_event_code_t code = lv_event_get_code(e);
-    if (code == LV_EVENT_CLICKED && State.flag == 0) //启动后链表按键不可动
+    if (code == LV_EVENT_CLICKED && State.flag == 0) // 启动后链表按键不可动
     {
         switch (temp)
         {

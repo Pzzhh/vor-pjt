@@ -66,12 +66,14 @@ void VOR_init(void);
 void start_btn_flash(void);
 void start_btn_change(btn_id id, int Num);
 void M4_init(void);
+void Tc_init(void);
 void wait_slave_ready_ui(void);
 int f_int_tran(float k, short num);
 #define VOR_ID 1
 #define Ctn_ID 2
 #define OVAR_ID 3
 #define VHIT_ID 4
+#define TC_ID 5
 
 
 
