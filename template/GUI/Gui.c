@@ -411,8 +411,8 @@ void Tc_init(void)
     lv_dropdown_set_options(dropdown_V, "72/S\n"
                                           "108/S\n"
                                           "144/S");
-    State.Set_Time=62;
-    lv_spinbox_set_value(time_box,State.Set_Time);
+    Set_time=62;
+    lv_spinbox_set_value(time_box,Set_time);
 }
 
 short Dropdown_read(lv_obj_t *dropdown)
