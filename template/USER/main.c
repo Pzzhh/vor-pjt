@@ -139,10 +139,10 @@ void usart_data_read(void)
         State.uart_cmd=2;
     }
 
-    if (U_D.Cmd / 10 == 3)
+    if (U_D.Cmd / 0x10 == 3)
     {
         // 读取
-        i = U_D.Cmd % 10;
+        i = U_D.Cmd % 0x10;
         Motor_f = U_D.M_F;
         if (i >= 0 && i <= 8) // 输入限制
         {
@@ -156,12 +156,12 @@ void usart_data_read(void)
             Table_reflush(Task_lisk(i)->Table, Task_lisk(i));
         }
     }
-    if (U_D.Cmd / 10 == 4)
+    if (U_D.Cmd / 0x10 == 4)
     {
-        i = U_D.Cmd % 10;
+        i = U_D.Cmd % 0x10;
         usart_data_send(i);
     }
-    if (U_D.Cmd / 10 == 5)
+    if (U_D.Cmd / 0x10 == 5)
     {
         temp = Task_lisk(0);
         for (;;)

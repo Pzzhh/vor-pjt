@@ -14,6 +14,7 @@ link *Task_lisk(int num);
 void table_init(void);
 void Table_reflush(lv_obj_t *table,link *e);
 void table_arrange_auto();
+void table_usart_Del(int flag, int Num_choose);
 #define TASK_Num 14
 #define list_Create 1
 #define list_Delate 2

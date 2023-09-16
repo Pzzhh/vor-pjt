@@ -7,8 +7,6 @@ LR_IROM1 0x08000000 0x00050000  {    ; load region size_region
    *.o (RESET, +First)
    *(InRoot$$Sections)
     startup_stm32f40_41xxx.o (+RO)
-    Slave_motor.o (+RO)
-    motor_control.o (+RO)
    .ANY (+RO)
    .ANY (+XO)
   }

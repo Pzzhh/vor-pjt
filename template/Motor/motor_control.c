@@ -256,7 +256,9 @@ volatile void Motor_timer_handler(lv_timer_t *e)
 
 void next_moter_set_all(void)
 {
-
+    extern void (*CustomFuntion)(float Vel);
+    extern void Slave_Motor_Vel_Mode_Acc(float Vel);
+    extern int Slave_Motor_Vel_Mode_Acc_Step;
     State.mode = Task_lisk(State.task)->mode;
     State.Vel = Task_lisk(State.task)->Vel;
     State.Frep_VOR = Task_lisk(State.task)->Frep_VOR;
@@ -265,6 +267,11 @@ void next_moter_set_all(void)
     if (State.mode == OVAR_ID)
     {
         State.inc_Rec = 1;
+        if (State.Vel == 60)
+        {
+            Slave_Motor_Vel_Mode_Acc_Step = 0;
+            CustomFuntion = Slave_Motor_Vel_Mode_Acc;
+        }
     }
     else
         State.inc_Rec = 0;
@@ -301,7 +308,7 @@ void next_motortask_timer_handler(lv_timer_t *e)
 
 void NEXT_timer_handler(lv_timer_t *e)
 {
-		extern   void Start_timer_handler(lv_timer_t *e);
+    extern void Start_timer_handler(lv_timer_t * e);
     int time = (int)my_lv_time - State.time_start;
     time = time / 1000;
     static uint32_t my_time;
@@ -319,14 +326,14 @@ void NEXT_timer_handler(lv_timer_t *e)
         lv_timer_del(e);
         return;
     }
-    if (my_lv_time - State.time_start > Next_Wait_Time * 1000)
+    if (my_lv_time - State.time_start > Next_Wait_Time * 1000 || State.mode == TC_ID)
     {
         start_btn_change(bt_wait_inc, 0);
         if (Task_lisk(State.task)->next->state)
         {
             if (State.cam_state)
                 cam_timer_on_off(1000, 0);
-            if (State.inc_Rec == 0||State.mode!=OVAR_ID)
+            if (State.inc_Rec == 0 || State.mode != OVAR_ID)
             {
                 State.task++;
                 State.flag = 1;
@@ -342,7 +349,7 @@ void NEXT_timer_handler(lv_timer_t *e)
         {
             if (State.cam_state)
                 cam_timer_on_off(1000, 0);
-            if (State.inc_Rec == 0||State.mode!=OVAR_ID)
+            if (State.inc_Rec == 0 || State.mode != OVAR_ID)
             {
                 printf("\r\n next_end");
                 lv_timer_create(Start_timer_handler, 300, (void *)1);

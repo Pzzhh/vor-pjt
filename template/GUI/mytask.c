@@ -142,7 +142,7 @@ void task_change_sever(link *temp)
         Continue_init(), Dropdown_mode = Ctn_ID, lv_dropdown_set_selected(dropdown_1, Ctn_ID - 1);
         break;
     case VHIT_ID:
-        M4_init(), Dropdown_mode = VHIT_ID, lv_dropdown_set_selected(dropdown_1, VHIT_ID-1);
+        M4_init(), Dropdown_mode = VHIT_ID, lv_dropdown_set_selected(dropdown_1, VHIT_ID - 1);
     case TC_ID:
         Tc_init(), Dropdown_mode = TC_ID, lv_dropdown_set_selected(dropdown_1, TC_ID - 1);
         break;
@@ -173,6 +173,33 @@ void Table_touch_handle(lv_event_t *e)
         task_change_sever(Task_lisk(Table_Choose));
         LV_LOG_USER("\r\n %d", i);
     }
+}
+
+void table_usart_Del(int flag, int Num_choose)
+{
+    const char *mode_text[5] = {"NULL", "VOR", "CON", "OVAR", "VHIT"};
+    int i, task_cnt = 0, Num;
+    lv_obj_t *table;
+    link *e;
+    for (i = 1; i < 12; i++)
+    {
+        if (Task_lisk(i)->state == 1)
+            task_cnt++;
+        if (Task_lisk(i)->state == 0)
+        {
+            Num = task_cnt + 1;
+            break;
+        }
+    }
+    Task_lisk(Num_choose)->state = 0;
+    table_hidden(Num_choose);
+    if (Num_choose != 0)
+    {
+        link_Del(Task_strat, Num_choose);
+    }
+
+    Table_Choose = 1;
+    Table_reflush(table, e);
 }
 
 void table_set(int flag, int Num_choose)
@@ -248,7 +275,7 @@ void table_set(int flag, int Num_choose)
         e->Frep_VOR = Dropdown_read_float(dropdown_F_V);
         e->mode = Dropdown_mode;
         e->Vel = Dropdown_read(dropdown_V);
-        if (State.dir == 0 && (e->mode == Ctn_ID || e->mode == OVAR_ID)) // 方向反转
+        if (State.dir == 0 && (e->mode == Ctn_ID || e->mode == OVAR_ID || e->mode == TC_ID)) // 方向反转
             e->Vel = -e->Vel;
         e->Set_Time = Set_time;
         // Task_lisk(Table_Choose)->Frep_VOR = State.Frep_VOR;

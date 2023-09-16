@@ -326,19 +326,25 @@ void VOR_handler(void)
                 State.motor_run = 0;
     }
 }
-
+void (*CustomFuntion)(float Vel) = NULL;
 void Continue_handler(void)
 {
     if (State.motor_run && State.flag)
         // if (TIM5->CR1 & TIM_CR1_CEN == 0)
         //     Slave_Motor_Vel_Mode(80, 1);
         // else
-        Slave_Motor_Vel_Mode(State.Vel, 0);
+        if (CustomFuntion == NULL)
+            Slave_Motor_Vel_Mode(State.Vel, 0);
+        else
+            CustomFuntion(State.Vel);
     else
     {
         if (State.flag == 0 && State.motor_run)
             if (Slave_Back(motor_Middele))
+            {
                 State.motor_run = 0;
+                CustomFuntion=0;
+            }
     }
 }
 
@@ -370,18 +376,31 @@ void TC_handler(void)
     static int slowDownTick = TCone_time;
     static short ssflag = 0;
     static short StopFlag = false;
+    static int camstopcount = 0;
     if (State.motor_run && State.flag && StopFlag != true)
         StopFlag = TC_Mode(&slowDownTick, &ssflag);
     else
     {
         if (State.flag == 0 && State.motor_run)
-            if (Slave_Back(motor_Middele))
+        {
+            camstopcount++;
+            if (camstopcount < 12 * 1000)
+            {
+                if (camstopcount > 10 * 1000 && camstopcount < 11 * 1000)
+                    Cam_rec = 1, LED0 = 0, State.cam_state = 0;
+                else
+                    Cam_rec = 0, LED0 = 1;
+            }
+            else if (Slave_Back(motor_Middele))
             {
                 State.motor_run = 0;
+
+                camstopcount = 0;
                 ssflag = 0;
                 slowDownTick = TCone_time;
                 StopFlag = false;
             }
+        }
     }
 }
 // 上位机
@@ -433,7 +452,7 @@ void tim_f_set(int f)
     // Out_Put_data = sys_clk / time_arr / time_psc;
     if (f > 1000 || TIM5->CNT > TIM5->CCR3)
     {
-        Dir_Ctl(Mins_flag);
+        Dir_Ctl(Mins_flag);     //正反控制
         if (time_arr != TIM5->ARR || time_psc != TIM5->PSC)
             TIM5_Slave_Set(time_arr, time_psc);
     }
@@ -618,6 +637,17 @@ u8 slave_sin_back(void)
         return 0;
     }
 }
+int Slave_Motor_Vel_Mode_Acc_Step;
+void Slave_Motor_Vel_Mode_Acc(float Vel)
+{
+    // static int step;
+    float NewVel = 0;
+    if (Slave_Motor_Vel_Mode_Acc_Step / 1000 < Vel*2)
+        Slave_Motor_Vel_Mode_Acc_Step++;
+    NewVel = Slave_Motor_Vel_Mode_Acc_Step;
+    NewVel /= (2000);
+    tim_f_set((int)(NewVel * angle_step));
+}
 
 void Slave_Motor_Vel_Mode(float Vel, u8 clear_fg)
 {
@@ -689,7 +719,7 @@ void mode4(void)
         sin_time = 0, flag = 0;
 }
 
-int TC_Mode(int* const slowDownTick, short* const flag)
+int TC_Mode(int *const slowDownTick, short *const flag)
 {
 
     int t = 0;
@@ -702,25 +732,35 @@ int TC_Mode(int* const slowDownTick, short* const flag)
     // t=t-temp;
     // sin_data = zhengtai[t]
     if (sin_time < TCone_time)
-        Slave_Motor_Vel_Mode(Vel * State.dir / 1000 * sin_time, 0);
+    {
+        Slave_Motor_Vel_Mode(Vel / TCone_time * sin_time, 0);
+        if (sin_time < cam_led_time)
+            cam_led = 1;
+        else
+            cam_led = 0;
+    }
     if (sin_time >= TCone_time && *flag == 0)
         *flag = 1;
     if (*flag == 1)
     {
-        Slave_Motor_Vel_Mode(Vel * State.dir, 0);
+        Slave_Motor_Vel_Mode(Vel, 0);
     }
-    if (sin_time / 1000 > State.Set_Time - 1)
+    if (sin_time > (State.Set_Time - 1) * 1000)
     {
         *flag = 2;
     }
     if (*flag == 2)
     {
-        Slave_Motor_Vel_Mode(Vel * State.dir / 1000 * (*slowDownTick), 0);
+        Slave_Motor_Vel_Mode(Vel / TCone_time * (*slowDownTick), 0);
         (*slowDownTick)--;
+        if (*slowDownTick > TCone_time - cam_led_time)
+            cam_led = 1;
+        else
+            cam_led = 0;
     }
     if (*slowDownTick == 0)
     {
-        Slave_Motor_Vel_Mode(0, 0);
+        TIM5->CR1 &= ~TIM_CR1_CEN;
         sin_time = 0;
         return 1;
     }
