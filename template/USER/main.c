@@ -22,7 +22,7 @@
 #define datascope 0
 
 /**
- * 变量区
+ * 变量�?
  * */
 volatile struct data1 State = {
     .mode = VOR_ID,
@@ -34,37 +34,37 @@ volatile struct data1 State = {
 };
 
 // extern link *Task_strat;
-// 测试用
+// 测试�?
 
 void Sys_init(void)
 {
-    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); // 设置系统中断优先级分组2
-    delay_init(168);                                // 初始化延时函数
-    uart_init(256000);                              // 初始化串口波特率为115200
+    NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2); // 设置系统中断优先级分�?2
+    delay_init(168);                                // 初始化延时函�?
+    uart_init(256000);                              // 初始化串口波特率�?115200
     LED_Init();                                     // 初始化LED
-    LCD_Init();                                     // LCD初始化
-    KEY_Init();                                     // 按键初始化
+    LCD_Init();                                     // LCD初始�?
+    KEY_Init();                                     // 按键初始�?
     INC_IO_init();
     ir_sensor_init();
     Cam_LED_Init();
     // IIC_Init(GPIO_Pin_6 | GPIO_Pin_7, GPIOC);
 
-    TIM3_Int_Init(1999, 83); // 定时器初始化(1ms中断),用于给lvgl提供1ms的心跳节拍
+    TIM3_Int_Init(1999, 83); // 定时器初始化(1ms中断),用于给lvgl提供1ms的心跳节�?
 
     FSMC_SRAM_Init(); // 初始化外部sram
                       //   tp_dev.init();			//触摸屏初始化
                       //  LCD_Init();
     FT5206_Init();
-    tp_dev.scan = FT5206_Scan;             // 扫描函数指向GT9147触摸屏扫描
-    tp_dev.touchtype |= 0X80;              // 电容屏
+    tp_dev.scan = FT5206_Scan;             // 扫描函数指向GT9147触摸屏扫�?
+    tp_dev.touchtype |= 0X80;              // 电容�?
     tp_dev.touchtype |= lcddev.dir & 0X01; // 横屏还是竖屏
     LCD_Display_Dir(1);
 
-    lv_init();            // lvgl系统初始化
-    lv_port_disp_init();  // lvgl显示接口初始化,放在lv_init()的后面
-    lv_port_indev_init(); // lvgl输入接口初始化,放在lv_init()的后面
+    lv_init();            // lvgl系统初始�?
+    lv_port_disp_init();  // lvgl显示接口初始�?,放在lv_init()的后�?
+    lv_port_indev_init(); // lvgl输入接口初始�?,放在lv_init()的后�?
     DataScope_DMA_init();
-    TIM1_encoder_Init(50000 + 1, 2 - 1);
+    TIM1_encoder_Init(50000 + 1, 20 - 1);
 #if datascope
     TIM7_DataScope_Init(2500, 839);
 #endif
@@ -112,6 +112,31 @@ void usart_data_send(int i)
     }
 }
 
+void usart_data_send_task_num(u8 Num)
+{
+    int i = 0;
+    u8 send_buff[10] = {0XFE, 0XFD};
+    short temp;
+    // memset(&send_buff[2], 0, 8);
+    send_buff[2] = Num;
+
+    send_buff[3] = 0;
+    send_buff[4] = 0;
+    send_buff[5] = 0;
+    send_buff[6] = 0;
+    // temp = Task_lisk(i)->Frep_VOR * 10;
+    send_buff[7] = 0;
+    send_buff[8] = 0;
+
+    send_buff[9] = 0XFC;
+    for (i = 0; i < 10; i++)
+    {
+        while ((USART1->SR & USART_SR_TXE) == 0)
+            ;
+        USART1->DR = send_buff[i];
+    }
+}
+
 void usart_data_read(void)
 {
 
@@ -126,17 +151,17 @@ void usart_data_read(void)
     U_D.M_Vel = USART_RX_BUF[6];
     Res = USART_RX_BUF[7];
     U_D.M_F = Res * 256 + USART_RX_BUF[8];
-    Uart_len = 2; // 标志位清楚
+    Uart_len = 2; // 标志位清�?
     if (U_D.Cmd == 1 && Task_lisk(1)->state == 1)
     {
-					State.uart_cmd=1;
-//        State.task = 0; // 用于作为启示指示
-//        State.flag = 1;
+        State.uart_cmd = 1;
+        //        State.task = 0; // 用于作为启示指示
+        //        State.flag = 1;
         // Start_timer = lv_timer_create(Start_timer_handler, 5, 0);
     }
     if (U_D.Cmd == 2)
     {
-        State.uart_cmd=2;
+        State.uart_cmd = 2;
     }
 
     if (U_D.Cmd / 0x10 == 3)
@@ -163,25 +188,48 @@ void usart_data_read(void)
     }
     if (U_D.Cmd / 0x10 == 5)
     {
+        extern short Table_Choose;
+        int k = U_D.Cmd % 0x10;
+        //**<ע��>����Table_Choose����
+        Table_Choose=k;
+        table_set(list_Delate, 1);
+        // temp = Task_lisk(0);
+        // for (int j = 2;; j++)
+        // {
+        //     if (temp->next != NULL || j == k)
+        //     {
+        //         if (temp->next->state == 0)
+        //         {
+        //             temp->state = 0;
+        //             lv_obj_add_flag(temp->Table, LV_OBJ_FLAG_HIDDEN);
+        //             break;
+        //         }
+        //     }
+        //     else
+        //         break;
+        //     temp = temp->next;
+        // }
+
+        table_arrange();
+        Table_reflush(Task_lisk(i)->Table, Task_lisk(i));
+    }
+    if (U_D.Cmd / 0x10 == 6)
+    {
         temp = Task_lisk(0);
+        k=0;
         for (;;)
         {
             if (temp->next != NULL)
             {
-                if (temp->next->state == 0)
+               if (temp->next->state == 0)
                 {
-                    temp->state = 0;
-                    lv_obj_add_flag(temp->Table, LV_OBJ_FLAG_HIDDEN);
                     break;
                 }
             }
-            else
-                break;
             temp = temp->next;
+            k++;
         }
-
-        table_arrange();
-        Table_reflush(Task_lisk(i)->Table, Task_lisk(i));
+        usart_data_send_task_num(k);
     }
     memset(USART_RX_BUF, 0, 50);
 }
@@ -203,8 +251,8 @@ int main(void)
     ui_motor_sever_init();
     while (1)
     {
-        if (my_lv_time % 100 == 0)
-            host_usart_handler();
+        // if (my_lv_time % 10 == 0)
+        //     host_usart_handler();
         if (Task_lisk(1)->state)
             State.list_state = 1;
         else
@@ -230,8 +278,8 @@ void USART3_IRQHandler(void) // 串口1中断服务程序
     u8 data = 0;
     static int Data_state = 0,                             // 尾帧
         cut = 0,                                           // 计数
-        Data_Flag = 0;                                     // 接收标志位
-    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) // 接收中断(接收到的数据必须是0x0d 0x0a结尾)
+        Data_Flag = 0;                                     // 接收标志�?
+    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) // 接收中断(接收到的数据必须�?0x0d 0x0a结尾)
     {
         data = USART3->DR;
         // printf(" %02X",data);

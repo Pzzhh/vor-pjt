@@ -197,7 +197,7 @@ void table_usart_Del(int flag, int Num_choose)
     {
         link_Del(Task_strat, Num_choose);
     }
-
+    table_arrange();
     Table_Choose = 1;
     Table_reflush(table, e);
 }
