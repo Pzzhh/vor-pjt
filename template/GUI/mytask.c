@@ -235,7 +235,7 @@ void table_set(int flag, int Num_choose)
         table_show();
         // table_arrange();
         e->Frep_VOR = Dropdown_read_float(dropdown_F_V);
-        printf("\r\n frep %f", e->Frep_VOR);
+//        printf("\r\n frep %f", e->Frep_VOR);
         e->mode = Dropdown_mode;
         e->Vel = Dropdown_read(dropdown_V);
         if (State.dir == 0 && (e->mode == Ctn_ID || e->mode == OVAR_ID || e->mode == TC_ID)) // 方向反转

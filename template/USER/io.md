@@ -1,7 +1,7 @@
-ÍÓÂİÒÇ pbout(10) pbout(11) ´®¿Ú 3.3v gnd  4io
-µç»ú paout(2) pwm Pcout(2)<-dir gnd        3io
-ÇãĞ±»ú¹¹ Pcout£¨1£©ÏÂ½µ pcout£¨0£©ÉÏÉı 5v gnd      4io
+é™€èºä»ª pbout(10) pbout(11) ä¸²å£ 3.3v gnd  4io
+ç”µæœº paout(2) pwm Pcout(2)<-dir gnd        3io
+å€¾æ–œæœºæ„ Pcoutï¼ˆ1ï¼‰ä¸‹é™ pcoutï¼ˆ0ï¼‰ä¸Šå‡ 5v gnd      4io
  
-¹âµç´«¸ĞÆ÷ Pa7
-Ïà»úset pc3  rec pc5 
+å…‰ç”µä¼ æ„Ÿå™¨ Pa7
+ç›¸æœºset pc3  rec pc5 
 led pc6

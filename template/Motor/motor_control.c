@@ -23,10 +23,10 @@ void cam_timer_on_off(int Period, int flag)
     else
     {
         cam_timer.vail = 1;
-        cam_timer.e = lv_timer_create(camer_handler, Period, (void *)flag); // Ê±¼äÆô¶¯
-        cam_timer.e->repeat_count = 2;                                      // ÉèÖÃÖØ¸´
+        cam_timer.e = lv_timer_create(camer_handler, Period, (void *)flag); // æ—¶é—´å¯åŠ¨
+        cam_timer.e->repeat_count = 2;                                      // è®¾ç½®é‡å¤
         // cam_timer.e->last_run=my_lv_time+10*1000;
-        lv_timer_ready(cam_timer.e); // ¾ÍÐ÷
+        lv_timer_ready(cam_timer.e); // å°±ç»ª
         // printf("\r\n New on");
     }
 }
@@ -105,7 +105,7 @@ void camer_handler(lv_timer_t *e)
             rec = 0;
         }
     }
-    printf("\r\n timer %d re %d", PFout(10), e->repeat_count);
+    // printf("\r\n timer %d re %d", PFout(10), e->repeat_count);
     if (e->repeat_count == 0)
         cam_timer.vail = 0;
 }
@@ -115,9 +115,9 @@ void back_timer_handler(lv_timer_t *e)
     static short arr = 0;
     extern void host_usart_handler(void);
     inc_down = 1;
-    if (my_lv_time < 3000) // ¿ª»úÆô¶¯¹ý¿ì»áÓëÖÆ¶¯ÍÏ×¡
+    if (my_lv_time < 3000) // å¼€æœºå¯åŠ¨è¿‡å¿«ä¼šä¸Žåˆ¶åŠ¨æ‹–ä½
     {
-        TIM5->CR1 &= ~TIM_CR1_CEN; // ¹Ø±Õ¶¨Ê±Æ÷
+        TIM5->CR1 &= ~TIM_CR1_CEN; // å…³é—­å®šæ—¶å™¨
         return;
     }
     if (arr == 0)
@@ -125,17 +125,17 @@ void back_timer_handler(lv_timer_t *e)
     else
         Slave_Motor_Vel_Mode(30, 0);
     LED0 = Ir_IO;
-    if (Ir_IO == 0 || my_lv_time > back_S * 1000 && arr == 0) // µ±µ½´ï¹âµç¿ª¹ØÊ±
+    if (Ir_IO == 0 || my_lv_time > back_S * 1000 && arr == 0) // å½“åˆ°è¾¾å…‰ç”µå¼€å…³æ—¶
     {
-        TIM1->CNT = motor_Middele; // ¹éÖÐ¶¨Ê±Æ÷
+        TIM1->CNT = motor_Middele; // å½’ä¸­å®šæ—¶å™¨
         arr = 1;
     }
-    if (arr && (TIM1->CNT > motor_Middele + 3500)) // ÈýÊ®¶È
+    if (arr && (TIM1->CNT > motor_Middele + 3500)) // ä¸‰ååº¦
     {
         Slave_Motor_Vel_Mode(0, 0);
-        TIM1->CNT = motor_Middele; // ¹éÖÐ¶¨Ê±Æ÷
-        TIM5->CR1 &= ~TIM_CR1_CEN; // ¹Ø±Õ¶¨Ê±Æ÷
-        inc_down = 0;              // ÇãÐ±¹Ø±Õ
+        TIM1->CNT = motor_Middele; // å½’ä¸­å®šæ—¶å™¨
+        TIM5->CR1 &= ~TIM_CR1_CEN; // å…³é—­å®šæ—¶å™¨
+        inc_down = 0;              // å€¾æ–œå…³é—­
         lv_obj_clean(lv_scr_act());
         Menu_init();
         State.std_ang = State.inc_ang;
@@ -160,7 +160,7 @@ void Emg_stop_handler(lv_timer_t *e)
     btn_reset_val;
     if (e->user_data != (void *)0)
     {
-        if (e->user_data == (void *)1) // ¶¨Ê±10s¹¦ÄÜ
+        if (e->user_data == (void *)1) // å®šæ—¶10såŠŸèƒ½
             my_time = my_lv_time;
         if (State.mode == OVAR_ID)
             State.inc_Rec = 1, State.Frep_VOR = 0;
@@ -175,19 +175,20 @@ void Emg_stop_handler(lv_timer_t *e)
         if (State.cam_state == 1)
         {
             cam_timer_on_off(1000, 0);
+            printf("\r\n Rec_termination");
             flag = 0;
         }
     }
     if (State.motor_run == 0 && State.inc_Rec == 0 && State.cam_state == 0)
     {
         start_btn_change(bt_start, 0);
-        lv_timer_create(Start_timer_handler, 300, (void *)1); // Æô¶¯timer
+        lv_timer_create(Start_timer_handler, 300, (void *)1); // å¯åŠ¨timer
         lv_timer_del(e);
     }
     // start_btn_flash();
 }
 
-// Ìá¹©½áÊø·þÎñ
+// æä¾›ç»“æŸæœåŠ¡
 volatile void Motor_timer_handler(lv_timer_t *e)
 {
     extern void INC_timer_handler(lv_timer_t * e);
@@ -196,23 +197,29 @@ volatile void Motor_timer_handler(lv_timer_t *e)
     int time = my_lv_time;
     static volatile uint32_t my_time;
     static uint8_t _wait;
-    if (e->user_data == (void *)1)
+    if (e->user_data == (void *)1) // ä»£è¡¨è¢«ç¬¬ä¸€æ¬¡è°ƒç”¨
     {
-        cam_timer_on_off(1000, 0);
+        const char ModeWord[][5] = {"VOR", "CON", "OVOR", "VHIT", "TC"};
+        printf("\r\n %s %.1fhz %dd %ds",
+               ModeWord[State.mode - 1],
+               State.Frep_VOR,
+               State.Vel,
+               State.Set_Time);
+        cam_timer_on_off(1000, 0);  //CAM_ON
         start_btn_change(bt_stop, 0);
         my_time = my_lv_time;
         _wait = 1;
         e->user_data = 0;
     }
     motor_info event = motor_event_monitor();
-    if (event == cmd_off) // °´¼ü¼àÌý
+    if (event == cmd_off) // æŒ‰é”®ç›‘å¬
     {
         // btn_reset_val;
         State.flag = 0;
         if (my_lv_time - my_time > wait_time)
-            lv_timer_create(Emg_stop_handler, 100, (void *)1); // Ìá¹©10sÑÓ³Ù
+            lv_timer_create(Emg_stop_handler, 100, (void *)1); // æä¾›10så»¶è¿Ÿ
         else
-            lv_timer_create(Emg_stop_handler, 100, (void *)2); // Ã»ÓÐ10sÑÓ³Ù
+            lv_timer_create(Emg_stop_handler, 100, (void *)2); // æ²¡æœ‰10så»¶è¿Ÿ
         lv_timer_del(e);
         return;
     }
@@ -227,7 +234,7 @@ volatile void Motor_timer_handler(lv_timer_t *e)
     if (_wait == 0)
     {
         time = (int)my_lv_time - State.time_start;
-        switch (State.mode) // Ê±¼ä¼ÆËã
+        switch (State.mode) // æ—¶é—´è®¡ç®—
         {                   //(float)State.Set_Time / State.Frep_VOR * 1000 - 50;
         case VOR_ID:
             limit_time = (float)State.Set_Time / State.Frep_VOR * 1000 - 50;
@@ -239,13 +246,13 @@ volatile void Motor_timer_handler(lv_timer_t *e)
             limit_time = State.Set_Time * 1000;
             break;
         }
-        if (time > limit_time && State.flag) // ³¬Ê±ÔÝÍ£
+        if (time > limit_time && State.flag) // è¶…æ—¶æš‚åœ
         {
             State.flag = 0;
         }
-        if (State.motor_run == 0) // µç»úÍê³É
+        if (State.motor_run == 0) // ç”µæœºå®Œæˆ
         {
-            if ((State.mode == OVAR_ID && Task_lisk(State.task)->next->mode != OVAR_ID) || (State.mode == OVAR_ID && Task_lisk(State.task)->next->state == 0)) // ÈçÏÂÒ»ÎªovarÔò²»ÏÂ½µ   ³ýÏÂÒ»ÏîÎª ²»´æÔÚ
+            if ((State.mode == OVAR_ID && Task_lisk(State.task)->next->mode != OVAR_ID) || (State.mode == OVAR_ID && Task_lisk(State.task)->next->state == 0)) // å¦‚ä¸‹ä¸€ä¸ºovaråˆ™ä¸ä¸‹é™   é™¤ä¸‹ä¸€é¡¹ä¸º ä¸å­˜åœ¨
                 State.inc_Rec = 1, State.Frep_VOR = 0.0;
             else
                 State.inc_Rec = 0, State.inc_ang = 0;
@@ -261,11 +268,13 @@ void next_moter_set_all(void)
     extern void (*CustomFuntion)(float Vel);
     extern void Slave_Motor_Vel_Mode_Acc(float Vel);
     extern int Slave_Motor_Vel_Mode_Acc_Step;
+
     State.mode = Task_lisk(State.task)->mode;
     State.Vel = Task_lisk(State.task)->Vel;
     State.Frep_VOR = Task_lisk(State.task)->Frep_VOR;
     State.Set_Time = Task_lisk(State.task)->Set_Time;
-    printf("\r\n %d %d %d %d", Task_lisk(0)->mode, Task_lisk(1)->mode, Task_lisk(2)->mode, Task_lisk(3)->mode);
+    // printf("\r\n %d %d %d %d", Task_lisk(0)->mode, Task_lisk(1)->mode, Task_lisk(2)->mode, Task_lisk(3)->mode);
+
     if (State.mode == OVAR_ID)
     {
         State.inc_Rec = 1;
@@ -278,7 +287,7 @@ void next_moter_set_all(void)
     else
         State.inc_Rec = 0;
     lv_timer_create(INC_timer_handler, 5, NULL);
-    printf("\r\n Start End");
+    // printf("\r\n Start End");
 }
 
 void next_motortask_timer_handler(lv_timer_t *e)
@@ -324,11 +333,11 @@ void NEXT_timer_handler(lv_timer_t *e)
     {
         cam_timer_on_off(1000, 0);
         start_btn_change(bt_start, 0);
-        lv_timer_create(Start_timer_handler, 300, (void *)1); // Æô¶¯timer
+        lv_timer_create(Start_timer_handler, 300, (void *)1); // å¯åŠ¨timer
         lv_timer_del(e);
         return;
     }
-    if (my_lv_time - State.time_start > Next_Wait_Time * 1000 || State.mode == TC_ID)
+    if (my_lv_time - State.time_start > Next_Wait_Time * 1000 || State.mode == TC_ID) // è¶…æ—¶
     {
         start_btn_change(bt_wait_inc, 0);
         if (Task_lisk(State.task)->next->state)
@@ -339,10 +348,11 @@ void NEXT_timer_handler(lv_timer_t *e)
             {
                 State.task++;
                 State.flag = 1;
-                // State.btn_clicked = 1; // ´¥·¢°´¼ü
+                // State.btn_clicked = 1; // è§¦å‘æŒ‰é”®
                 lv_timer_create(next_motortask_timer_handler, 300, 0);
-                start_btn_change(bt_stop, 0); // »¹ÓÐÈÎÎñËùÒÔÒªÏÔÊ¾Í£Ö¹
-                printf("\r\n next");
+                start_btn_change(bt_stop, 0); // è¿˜æœ‰ä»»åŠ¡æ‰€ä»¥è¦æ˜¾ç¤ºåœæ­¢
+                printf("\r\n Rec_finish");
+                // printf("\r\n Rec_end");
                 lv_timer_del(e);
                 return;
             }
@@ -350,12 +360,12 @@ void NEXT_timer_handler(lv_timer_t *e)
         else
         {
             if (State.cam_state)
-                cam_timer_on_off(1000, 0);
+                cam_timer_on_off(1000, 0); // å…³é—­ç›¸æœº
             if (State.inc_Rec == 0 || State.mode != OVAR_ID)
             {
-                printf("\r\n next_end");
+                printf("\r\n Rec_finish");
                 lv_timer_create(Start_timer_handler, 300, (void *)1);
-                start_btn_change(bt_start, 0); // Ã»ÓÐÈÎÎñËùÒÔÒªÏÔÊ¾Æô¶¯
+                start_btn_change(bt_start, 0); // æ²¡æœ‰ä»»åŠ¡æ‰€ä»¥è¦æ˜¾ç¤ºå¯åŠ¨
                 start_btn_flash();
                 State.flag = 0;
                 lv_timer_del(e);
@@ -387,7 +397,7 @@ void INC_timer_handler(lv_timer_t *e)
             lv_timer_create(Motor_timer_handler, 5, (void *)1);
             // start_btn_flash();
             start_btn_change(bt_stop, 0);
-            printf("\r\n inc->motor %d %d %d", State.flag, State.inc_Rec, State.motor_run);
+            // printf("\r\n inc->motor %d %d %d", State.flag, State.inc_Rec, State.motor_run);
             lv_timer_del(e);
         }
         inc_up = 0;
@@ -425,7 +435,7 @@ void Start_timer_handler(lv_timer_t *e)
     }
     if (motor_event_monitor() == cmd_on)
     {
-        if (State.list_state == 1) // ¼ì²éÓÐÃ»ÓÐÈÎÎñ
+        if (State.list_state == 1) // æ£€æŸ¥æœ‰æ²¡æœ‰ä»»åŠ¡
         {
             State.run = 1;
             State.flag = 1;
