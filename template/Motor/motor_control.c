@@ -113,7 +113,7 @@ void camer_handler(lv_timer_t *e)
 void back_timer_handler(lv_timer_t *e)
 {
     static short arr = 0;
-    extern void host_usart_handler(void);
+     extern void slave_usart_timer_init(void);
     inc_down = 1;
     if (my_lv_time < 3000) // 开机启动过快会与制动拖住
     {
@@ -146,7 +146,7 @@ void back_timer_handler(lv_timer_t *e)
         lv_obj_add_style(update_label, &font_style1, 0);
         lv_timer_create(time_reflash, 33, (void *)update_label);
         lv_timer_create(task_display, 500, NULL);
-        lv_timer_create(host_usart_handler, 50, NULL);
+        slave_usart_timer_init();
         lv_timer_del(e);
     }
 }
