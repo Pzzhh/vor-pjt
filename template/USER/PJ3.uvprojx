@@ -1290,6 +1290,16 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>uart_slave</GroupName>
+          <Files>
+            <File>
+              <FileName>uart_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\uart_slave.c</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
     <Target>
@@ -2762,6 +2772,16 @@
               <FileName>motor_control.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Motor\motor_control.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>uart_slave</GroupName>
+          <Files>
+            <File>
+              <FileName>uart_slave.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\uart_slave.c</FilePath>
             </File>
           </Files>
         </Group>

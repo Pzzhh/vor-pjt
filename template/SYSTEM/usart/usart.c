@@ -256,11 +256,6 @@ void USART1_IRQHandler(void) //串口1中断服务程序
                 memset(USART_RX_BUF, 0, 20);
             else
                 uart_flag = 1;
-        // if (Uart_len == 3)
-        //     if (Res != 0XFC)
-        //         memset(USART_RX_BUF, 0, 20);
-        //     else
-        //         uart_flag = 2;
         if (USART_RX_BUF[0] == 0XFE && USART_RX_BUF[1] == 0XFD)
             USART_RX_BUF[Uart_len++] = Res;
 
