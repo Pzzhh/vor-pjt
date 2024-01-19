@@ -79,9 +79,9 @@ void Sys_init(void)
 int main(void)
 {
     Sys_init();
-    if ((RCC->CSR & RCC_CSR_WWDGRSTF) == 0)
-        cam_timer_on_off(5000, 1);
-    RCC->CSR |= RCC_CSR_RMVF;
+     if ((RCC->CSR & RCC_CSR_WWDGRSTF) == 0)
+         cam_timer_on_off(5000, 1);
+     RCC->CSR |= RCC_CSR_RMVF;
     ui_motor_sever_init();
 
     while (1)

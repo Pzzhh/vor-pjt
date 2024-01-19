@@ -557,15 +557,15 @@ void Slave_motor(int Angle_speed, float Feq)
     tim_f_sin_set(angle_step *  sin_data * Angle_speed);
     // last_data = sin_time;
 }
-
+		 float OutPut;
 u8 Slave_Back(int Tag_Pos)
 {
 // #define P 0.08
-#define limit 8000 // 限速
+#define limit 30000 // 限速
     float p = 1000;
 #define Val 20
     // static short Last_data;
-    float OutPut;
+//    float OutPut;
     // float minus;
     // minus = Tag_Pos - (u16)TIM1->CNT;
     OutPut = p * (Tag_Pos - (u16)TIM1->CNT);

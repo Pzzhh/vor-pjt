@@ -1,6 +1,8 @@
 #include "uart_slave.h"
+#include "math.h"
 #include "stm32f4xx.h"
 const u8 SendPackageTemplete[] = {[0] = 0xfe, [1] = 0xfd, [11] = 0xfc};
+#define Use_Monitor 0
 struct
 {
     u8 Cmd;
@@ -183,7 +185,9 @@ void slave_usart_handler(void)
 {
     if (uart_flag == 1)
     {
+#if Use_Monitor
         usart_protocol_decoding(&USART_RX_BUF[2]);
+#endif
     }
 }
 
@@ -200,72 +204,72 @@ short Angle_Data[4] = {0, 0, 0, 0};
 // short Angle_Speed[4]={0,0,0,0};
 int Acc_R_Data[4] = {0, 0, 0, 0};
 
-// void USART3_IRQHandler(void) // 串口1中断服务程序
-// {
-//     // u8 Res;
-//     static u8 last_data = 0;
-//     float temp;
-//     u8 data = 0;
-//     static int Data_state = 0,                             // 尾帧
-//         cut = 0,                                           // 计数
-//         Data_Flag = 0;                                     // 接收标志�?
-//     if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) // 接收中断(接收到的数据必须�?0x0d 0x0a结尾)
-//     {
-//         data = USART3->DR;
-//         // printf(" %02X",data);
-//         if (last_data == 0X55 && data >= 0X50 && Data_Flag == 0)
-//         {
-//             Data_Flag = 1;
-//             Data_state = data;
-//             cut = 0;
-//             // printf("\r\n%d",Data_state);
-//             goto End;
-//         }
-//         if (Data_Flag == 1)
-//         {
-//             switch (Data_state)
-//             {
-//             case 0X53: // 角度输出
-//             {
-//                 // Angle_Data[cut]=data;
-//                 if (cut % 2 == 1)
-//                 {
-//                     Angle_Data[(int)cut / 2] = (data << 8) | last_data;
-//                     temp = (float)Angle_Data[1] / 65536 * 360;
-//                     temp = temp * temp;
-//                     State.inc_ang = (float)Angle_Data[0] / 65536 * 360;
-//                     State.inc_ang = State.inc_ang * State.inc_ang;
-//                     State.inc_ang = State.inc_ang + temp;
-//                     State.inc_ang = sqrt(State.inc_ang);
-//                     State.act_ang = State.inc_ang;
-//                     State.inc_ang -= State.std_ang;
-//                 }
-//             }
-//             break;
-//             default:
-//             {
-//                 Data_state = 0;
-//                 Data_Flag = 0;
-//                 cut = 0;
-//                 last_data = 0;
-//                 goto End;
-//             }
-//             break;
-//             }
-//             cut++;
-//             if (cut >= 8)
-//             {
-//                 cut = 0;
-//                 Data_Flag = 0;
-//                 Data_state = 0;
-//                 goto End;
-//             }
-//         }
-//     End:
-//         last_data = data;
-//         USART_ClearITPendingBit(USART3, USART_IT_RXNE);
-//     }
-// }
+void USART3_IRQHandler(void) // 串口1中断服务程序
+{
+    // u8 Res;
+    static u8 last_data = 0;
+    float temp;
+    u8 data = 0;
+    static int Data_state = 0,                             // 尾帧
+        cut = 0,                                           // 计数
+        Data_Flag = 0;                                     // 接收标志�?
+    if (USART_GetITStatus(USART3, USART_IT_RXNE) != RESET) // 接收中断(接收到的数据必须�?0x0d 0x0a结尾)
+    {
+        data = USART3->DR;
+        // printf(" %02X",data);
+        if (last_data == 0X55 && data >= 0X50 && Data_Flag == 0)
+        {
+            Data_Flag = 1;
+            Data_state = data;
+            cut = 0;
+            // printf("\r\n%d",Data_state);
+            goto End;
+        }
+        if (Data_Flag == 1)
+        {
+            switch (Data_state)
+            {
+            case 0X53: // 角度输出
+            {
+                // Angle_Data[cut]=data;
+                if (cut % 2 == 1)
+                {
+                    Angle_Data[(int)cut / 2] = (data << 8) | last_data;
+                    temp = (float)Angle_Data[1] / 65536 * 360;
+                    temp = temp * temp;
+                    State.inc_ang = (float)Angle_Data[0] / 65536 * 360;
+                    State.inc_ang = State.inc_ang * State.inc_ang;
+                    State.inc_ang = State.inc_ang + temp;
+                    State.inc_ang = sqrt(State.inc_ang);
+                    State.act_ang = State.inc_ang;
+                    State.inc_ang -= State.std_ang;
+                }
+            }
+            break;
+            default:
+            {
+                Data_state = 0;
+                Data_Flag = 0;
+                cut = 0;
+                last_data = 0;
+                goto End;
+            }
+            break;
+            }
+            cut++;
+            if (cut >= 8)
+            {
+                cut = 0;
+                Data_Flag = 0;
+                Data_state = 0;
+                goto End;
+            }
+        }
+    End:
+        last_data = data;
+        USART_ClearITPendingBit(USART3, USART_IT_RXNE);
+    }
+}
 
 typedef enum
 {
