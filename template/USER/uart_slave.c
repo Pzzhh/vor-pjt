@@ -1,6 +1,7 @@
 #include "uart_slave.h"
 #include "math.h"
 #include "stm32f4xx.h"
+// #include "lvgl.h"
 const u8 SendPackageTemplete[] = {[0] = 0xfe, [1] = 0xfd, [11] = 0xfc};
 #define Use_Monitor 0
 struct
@@ -236,13 +237,17 @@ void USART3_IRQHandler(void) // 串口1中断服务程序
                 {
                     Angle_Data[(int)cut / 2] = (data << 8) | last_data;
                     temp = (float)Angle_Data[1] / 65536 * 360;
-                    temp = temp * temp;
+                    State.real_angA = temp; // 获取真实角度
+                    temp -= State.std_angA; // 得到归零
+                    temp = temp * temp;     // 平方
                     State.inc_ang = (float)Angle_Data[0] / 65536 * 360;
-                    State.inc_ang = State.inc_ang * State.inc_ang;
+                    State.real_angB = State.inc_ang;               // 获取真实角度
+                    State.inc_ang -= State.std_angB;               // 得到归零
+                    State.inc_ang = State.inc_ang * State.inc_ang; // 平方
                     State.inc_ang = State.inc_ang + temp;
                     State.inc_ang = sqrt(State.inc_ang);
                     State.act_ang = State.inc_ang;
-                    State.inc_ang -= State.std_ang;
+                    // State.inc_ang -= State.std_ang;
                 }
             }
             break;
@@ -277,16 +282,25 @@ typedef enum
     Cmd_no_match,
     Cmd_match,
 } DecodeFuntionReturn;
-#define DecodingFuntion_Length 10
-DecodeFuntionReturn (*decodingFuntion[DecodingFuntion_Length])(u8 *bytes);
 DecodeFuntionReturn Decode_UploadTask_Cmd(u8 *bytes);
 DecodeFuntionReturn Decode_downloadTask_Cmd(u8 *bytes);
 DecodeFuntionReturn Decode_ReturnSlaveState_Cmd(u8 *bytes);
+DecodeFuntionReturn Decode_Start_Cmd(u8 *bytes);
+DecodeFuntionReturn Decode_Deleta_Cmd(u8 *bytes);
+#define DecodingFuntion_Length 10
+DecodeFuntionReturn (*decodingFuntion[DecodingFuntion_Length])(u8 *bytes) = {
+    Decode_ReturnSlaveState_Cmd,
+    Decode_Start_Cmd,
+    Decode_UploadTask_Cmd,
+    Decode_downloadTask_Cmd,
+    Decode_Deleta_Cmd,
+};
 void usart_protocol_init()
 {
-    decodingFuntion[0] = Decode_UploadTask_Cmd;
-    decodingFuntion[1] = Decode_downloadTask_Cmd;
-    decodingFuntion[2] = Decode_ReturnSlaveState_Cmd;
+    // decodingFuntion[0] = Decode_UploadTask_Cmd;
+    // decodingFuntion[1] = Decode_downloadTask_Cmd;
+    // decodingFuntion[2] = Decode_ReturnSlaveState_Cmd;
+    // decodingFuntion
 }
 
 void usart_protocol_decoding(u8 *bytes)
@@ -305,22 +319,62 @@ void usart_protocol_decoding(u8 *bytes)
     }
 }
 
-DecodeFuntionReturn Decode_UploadTask_Cmd(u8 *bytes)
-{
-    const u8 ModeId = 0x04;
-    if (bytes == 0)
-        return Cmd_error;
-    if (bytes[0] != ModeId)
-        return Cmd_no_match;
-    u8 ReadID = bytes[1];
-    usart_data_send(ReadID, ModeId);
-    return Cmd_match;
-}
-
 // void Decode_downloadTask_Return(u8 ID)
 // {
 //     usart_data_send(ID);
 // }
+
+DecodeFuntionReturn Decode_ReturnSlaveState_Cmd(u8 *bytes)
+{
+    const u8 ModeId = 0x01;
+    typedef struct
+    {
+        u8 Task_Count;
+        u8 Runing_ID;
+    } state_parameter; // 注意不能直接使用内存赋值 要逐个赋值 涉及内存分配问题
+
+    if (bytes == 0)
+        return Cmd_error;
+    if (bytes[0] != ModeId)
+        return Cmd_no_match;
+    u8 returnbytes[2] = {(u8)Task_lisk_length(), State.task};
+    Usart_Send_Bytes(returnbytes, sizeof(returnbytes));
+    return Cmd_match;
+}
+#include "lvgl.h"
+void Decode_Start_Cmd_callback()
+{
+    const u8 ModeId = 0x02;
+    u8 isSuccess = 0;
+    if (State.uart_cmd == 0)
+    {
+        isSuccess = 1;
+    }
+    // if(State.flag=)
+    u8 returnbytes[2] = {ModeId, isSuccess}; // cmd id + 启动成功返回
+    Usart_Send_Bytes(returnbytes, sizeof(returnbytes));
+}
+DecodeFuntionReturn Decode_Start_Cmd(u8 *bytes)
+{
+
+    const u8 ModeId = 0x02;
+    typedef struct
+    {
+        u8 start;
+    } Start_parameter;
+    if (bytes == 0)
+        return Cmd_error;
+    if (bytes[0] != ModeId)
+        return Cmd_no_match;
+    Start_parameter e = {
+        .start = bytes[1]};
+    if ((State.run == 1 && e.start == 0x02) || (State.run == 0 && e.start == 0x02))
+    {
+        State.uart_cmd = 1;
+        lv_timer_t *timer = lv_timer_create(Decode_Start_Cmd_callback, 50, NULL);
+        timer->repeat_count = 1;
+    }
+}
 
 DecodeFuntionReturn Decode_downloadTask_Cmd(u8 *bytes)
 {
@@ -365,20 +419,40 @@ DecodeFuntionReturn Decode_downloadTask_Cmd(u8 *bytes)
     return Cmd_match;
 }
 
-DecodeFuntionReturn Decode_ReturnSlaveState_Cmd(u8 *bytes)
+DecodeFuntionReturn Decode_UploadTask_Cmd(u8 *bytes)
 {
-    const u8 ModeId = 0x01;
-    typedef struct
-    {
-        u8 Task_Count;
-        u8 Runing_ID;
-    } state_parameter; // 注意不能直接使用内存赋值 要逐个赋值 涉及内存分配问题
-
+    const u8 ModeId = 0x04;
     if (bytes == 0)
         return Cmd_error;
     if (bytes[0] != ModeId)
         return Cmd_no_match;
-    u8 returnbytes[2] = {(u8)Task_lisk_length(), State.task};
+    u8 ReadID = bytes[1];
+    usart_data_send(ReadID, ModeId);
+    return Cmd_match;
+}
+extern short Table_Choose;
+DecodeFuntionReturn Decode_Deleta_Cmd(u8 *bytes)
+{
+    const u8 ModeId = 0x05;
+    if (bytes == 0)
+        return Cmd_error;
+    if (bytes[0] != ModeId)
+        return Cmd_no_match;
+    typedef struct
+    {
+        u8 Id;
+    } Delate_parameter;
+    Delate_parameter e = {
+        .Id = bytes[1]};
+    int length = Task_lisk_length();
+    u8 isSuccess = 0;
+    if (e.Id < length)
+    {
+        Table_Choose = e.Id; // 设置删除的行
+        table_set(list_Delate, 1);
+        isSuccess = 1;
+    }
+    u8 returnbytes[3] = {ModeId, isSuccess, (u8)Task_lisk_length()}; // cmd id + 启动成功返回
     Usart_Send_Bytes(returnbytes, sizeof(returnbytes));
     return Cmd_match;
 }

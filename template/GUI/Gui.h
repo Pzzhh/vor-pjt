@@ -46,7 +46,10 @@ struct data1
     //链表状态
     short list_state;
     //启动角度
-    float std_ang;
+    float std_angA;
+    float std_angB;
+    float real_angA;
+    float real_angB;
     //实际角度
     float act_ang;
     //方向设置

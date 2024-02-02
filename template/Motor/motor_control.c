@@ -113,7 +113,7 @@ void camer_handler(lv_timer_t *e)
 void back_timer_handler(lv_timer_t *e)
 {
     static short arr = 0;
-     extern void slave_usart_timer_init(void);
+    extern void slave_usart_timer_init(void);
     inc_down = 1;
     if (my_lv_time < 3000) // 开机启动过快会与制动拖住
     {
@@ -138,7 +138,9 @@ void back_timer_handler(lv_timer_t *e)
         inc_down = 0;              // 倾斜关闭
         lv_obj_clean(lv_scr_act());
         Menu_init();
-        State.std_ang = State.inc_ang;
+        // State.std_ang = State.inc_ang;
+        State.std_angA = State.real_angA;
+        State.std_angB = State.real_angB;
         static lv_style_t font_style1;
         lv_style_init(&font_style1);
         lv_style_set_text_font(&font_style1, &lv_font_montserrat_18);
@@ -175,7 +177,8 @@ void Emg_stop_handler(lv_timer_t *e)
         if (State.cam_state == 1)
         {
             cam_timer_on_off(1000, 0);
-            printf("\r\n Rec_termination");
+            //            printf("\r\n Rec_termination");
+            printf("\r\n Stop");
             flag = 0;
         }
     }
@@ -191,6 +194,7 @@ void Emg_stop_handler(lv_timer_t *e)
 // 提供结束服务
 volatile void Motor_timer_handler(lv_timer_t *e)
 {
+    // const char[][5]={""}
     extern void INC_timer_handler(lv_timer_t * e);
     uint32_t wait_time = 4 * 1000;
     int limit_time;
@@ -200,12 +204,48 @@ volatile void Motor_timer_handler(lv_timer_t *e)
     if (e->user_data == (void *)1) // 代表被第一次调用
     {
         const char ModeWord[][5] = {"VOR", "CON", "OVOR", "VHIT", "TC"};
-        printf("\r\n %s %.1fhz %dd %ds",
-               ModeWord[State.mode - 1],
-               State.Frep_VOR,
-               State.Vel,
-               State.Set_Time);
-        cam_timer_on_off(1000, 0);  //CAM_ON
+        switch (State.mode)
+        {
+        case VOR_ID:
+            printf("\r\n Start %s %.1fhz %dd %ds",
+                   ModeWord[State.mode - 1],
+                   State.Frep_VOR,
+                   State.Vel,
+                   State.Set_Time);
+            break;
+        case Ctn_ID:
+            printf("\r\n Start %s %dd %ds",
+                   ModeWord[State.mode - 1],
+                   State.Vel,
+                   State.Set_Time);
+            break;
+        case OVAR_ID:
+            printf("\r\n Start %s %.1fd %dd %ds",
+                   ModeWord[State.mode - 1],
+                   State.Frep_VOR,
+                   State.Vel,
+                   State.Set_Time);
+            break;
+        case VHIT_ID:
+            printf("\r\n Start %s  %ds",
+                   ModeWord[State.mode - 1],
+                   State.Set_Time);
+            break;
+        case TC_ID:
+            printf("\r\n Start %s %dd %ds",
+                   ModeWord[State.mode - 1],
+                   State.Vel,
+                   State.Set_Time);
+            break;
+        default:
+            break;
+        }
+        // printf("\r\n Start %s %.1fhz %dd %ds",
+        //        ModeWord[State.mode - 1],
+        //        State.Frep_VOR,
+        //        State.Vel,
+        //        State.Set_Time);
+        cam_timer_on_off(1000, 0); // CAM_ON
         start_btn_change(bt_stop, 0);
         my_time = my_lv_time;
         _wait = 1;
@@ -351,7 +391,7 @@ void NEXT_timer_handler(lv_timer_t *e)
                 // State.btn_clicked = 1; // 触发按键
                 lv_timer_create(next_motortask_timer_handler, 300, 0);
                 start_btn_change(bt_stop, 0); // 还有任务所以要显示停止
-                printf("\r\n Rec_finish");
+                printf("\r\n RecEnd");
                 // printf("\r\n Rec_end");
                 lv_timer_del(e);
                 return;
@@ -363,7 +403,7 @@ void NEXT_timer_handler(lv_timer_t *e)
                 cam_timer_on_off(1000, 0); // 关闭相机
             if (State.inc_Rec == 0 || State.mode != OVAR_ID)
             {
-                printf("\r\n Rec_finish");
+                printf("\r\n End");
                 lv_timer_create(Start_timer_handler, 300, (void *)1);
                 start_btn_change(bt_start, 0); // 没有任务所以要显示启动
                 start_btn_flash();

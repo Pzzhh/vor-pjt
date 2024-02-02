@@ -1300,6 +1300,16 @@
             </File>
           </Files>
         </Group>
+        <Group>
+          <GroupName>Markdown</GroupName>
+          <Files>
+            <File>
+              <FileName>备忘.md</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\备忘.md</FilePath>
+            </File>
+          </Files>
+        </Group>
       </Groups>
     </Target>
     <Target>
@@ -2782,6 +2792,16 @@
               <FileName>uart_slave.c</FileName>
               <FileType>1</FileType>
               <FilePath>.\uart_slave.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Markdown</GroupName>
+          <Files>
+            <File>
+              <FileName>备忘.md</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\备忘.md</FilePath>
             </File>
           </Files>
         </Group>

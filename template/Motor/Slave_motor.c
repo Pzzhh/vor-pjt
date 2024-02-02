@@ -663,7 +663,7 @@ u8 INC_Ctrl(float tag)
     static int time_limit;
     static uint8_t finish = 0;
     float minus = State.inc_ang - tag;
-    printf("\r\n%d", time_limit);
+    // printf("\r\n%d", time_limit);
     if (finish == 0)
     {
         if (State.inc_ang < 0.2 && tag < 1)
